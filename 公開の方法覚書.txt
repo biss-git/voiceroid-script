@@ -3,7 +3,7 @@
 
 angular.jsonのoutputPathをdocsにする
 
-ng build --prod --base-href="https://biss-git.github.io/voiceroid-script"
+ng build --prod --base-href="https://biss-git.github.io/voiceroid-script/"
 としてビルド
 
 生成されたdocsフォルダをgithubにコミット
