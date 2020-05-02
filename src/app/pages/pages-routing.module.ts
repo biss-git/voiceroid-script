@@ -25,7 +25,7 @@ const routes: Routes = [{
     },
     {
       path: '',
-      redirectTo: 'charts/PhraseDictionary',
+      redirectTo: 'editors/voiceroid-editor',
       pathMatch: 'full',
     },
     {

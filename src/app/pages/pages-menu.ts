@@ -4,7 +4,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: '台本編集',
     icon: 'text-outline',
-    link: '/pages/editors/editorjs',
+    link: '/pages/editors/voiceroid-editor',
   },
   {
     title: 'フレーズ辞書',

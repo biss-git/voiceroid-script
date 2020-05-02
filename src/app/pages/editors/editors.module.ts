@@ -8,7 +8,7 @@ import {
 import { ThemeModule } from '../../@theme/theme.module';
 
 import { EditorsRoutingModule, routedComponents } from './editors-routing.module';
-import { EditorjsComponent } from './editorjs/editorjs.component';
+import { VoiceroidEditiorComponent } from './voiceroid-editor/voiceroid-editor.component';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
   ],
   declarations: [
     ...routedComponents,
-    EditorjsComponent,
+    VoiceroidEditiorComponent,
   ],
 })
 export class EditorsModule { }

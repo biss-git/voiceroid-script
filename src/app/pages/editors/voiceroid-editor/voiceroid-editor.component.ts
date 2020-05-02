@@ -8,11 +8,11 @@ import { CharactorsService } from '../../../service/charactors.service';
 import {API} from '@editorjs/editorjs';
 
 @Component({
-  selector: 'ngx-editorjs',
-  templateUrl: './editorjs.component.html',
-  styleUrls: ['./editorjs.component.scss'],
+  selector: 'ngx-voiceroid-editor',
+  templateUrl: './voiceroid-editor.component.html',
+  styleUrls: ['./voiceroid-editor.component.scss'],
 })
-export class EditorjsComponent implements AfterViewInit, OnDestroy {
+export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
 
   constructor(private theme: NbThemeService,
               private download: DownloadService,
@@ -37,7 +37,7 @@ export class EditorjsComponent implements AfterViewInit, OnDestroy {
     holder: this.id,
     autofocus: true,
     tools: {
-      paragraph: VoiceroidEditor,
+      paragraph: VoiceroidEditorPlugin,
     },
   };
 
@@ -46,7 +46,7 @@ export class EditorjsComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     setTimeout(() => {
       this.characters = this.charaService.characters;
-      VoiceroidEditor.characters = this.charaService.characters;
+      VoiceroidEditorPlugin.characters = this.charaService.characters;
       if(this.charaService.tempData){
         this.config.data = this.charaService.tempData;
       }
@@ -54,8 +54,8 @@ export class EditorjsComponent implements AfterViewInit, OnDestroy {
     }, 10);
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
       console.log(config);
-      VoiceroidEditor.bgColor = config.variables.bg.toString();
-      VoiceroidEditor.textColor = config.variables.fgText.toString();
+      VoiceroidEditorPlugin.bgColor = config.variables.bg.toString();
+      VoiceroidEditorPlugin.textColor = config.variables.fgText.toString();
       this.reflesh();
       setTimeout(() => {
         this.bgColor = config.variables.bg.toString();
@@ -128,7 +128,7 @@ export class EditorjsComponent implements AfterViewInit, OnDestroy {
         else if(extension == '.vcha'){
           this.charaService.characters = JSON.parse(text);
           this.characters = this.charaService.characters;
-          VoiceroidEditor.characters = this.charaService.characters;
+          VoiceroidEditorPlugin.characters = this.charaService.characters;
           this.reflesh();
           setTimeout(() => {
             const target = document.getElementById('characterList');
@@ -292,7 +292,7 @@ export class EditorjsComponent implements AfterViewInit, OnDestroy {
 
 
 //プラグインを構成するクラス
-class VoiceroidEditor {
+class VoiceroidEditorPlugin {
 
   static bgColor = '#ffff00';
   static textColor = '#0000ff';
@@ -347,8 +347,8 @@ class VoiceroidEditor {
     this.textInput.style.border = '0';
     this.textInput.style.resize = 'none';
     this.textInput.style.width = '100%';
-    this.textInput.style.backgroundColor = VoiceroidEditor.bgColor;
-    this.textInput.style.color = VoiceroidEditor.textColor;
+    this.textInput.style.backgroundColor = VoiceroidEditorPlugin.bgColor;
+    this.textInput.style.color = VoiceroidEditorPlugin.textColor;
     this.textInput.onkeyup = this.onKeyUp.bind(this);
     this.textInput.onkeydown = this.onKeyDown.bind(this);
     this.textInput.setAttribute('rows', '1');
@@ -360,7 +360,7 @@ class VoiceroidEditor {
 
     this.textInput.value = this.initText;
     this.initText = '';
-    this.toggleTune(VoiceroidEditor.characters[this.initId]);
+    this.toggleTune(VoiceroidEditorPlugin.characters[this.initId]);
     setTimeout(() => {
       this.resizeTextArea();
     }, 10);
@@ -457,7 +457,7 @@ class VoiceroidEditor {
   renderSettings(){
     const wrapper = document.createElement('div');
 
-    VoiceroidEditor.characters.forEach( tune => {
+    VoiceroidEditorPlugin.characters.forEach( tune => {
       const button = document.createElement('div');
 
       button.classList.add('cdx-settings-button');

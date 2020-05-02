@@ -2,14 +2,14 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { EditorsComponent } from './editors.component';
-import { EditorjsComponent } from './editorjs/editorjs.component';
+import { VoiceroidEditiorComponent } from './voiceroid-editor/voiceroid-editor.component'
 
 const routes: Routes = [{
   path: '',
   component: EditorsComponent,
   children: [{
-    path: 'editorjs',
-    component: EditorjsComponent,
+    path: 'voiceroid-editor',
+    component: VoiceroidEditiorComponent,
   }],
 }];
 

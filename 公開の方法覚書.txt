@@ -1,0 +1,24 @@
+
+参考サイト：https://dzone.com/articles/deploy-angular-app-on-github-pages
+
+angular.jsonのoutputPathをdocsにする
+
+ng build --prod --base-href="https://biss-git.github.io/voiceroid-script"
+としてビルド
+
+生成されたdocsフォルダをgithubにコミット
+
+
+github の settings から
+GitHub Pages の項目で
+Source で 「master brance/docs folder」 みたいなのを選ぶ
+
+以上！
+あとは"https://biss-git.github.io/voiceroid-script"にアクセスすればOK
+
+
+angular-cli-ghpages がどうのこうのという記事をいくつか見つけたが、
+そんなのは関係なかった
+
+
+

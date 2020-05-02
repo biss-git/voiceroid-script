@@ -1,0 +1,139 @@
+
+本家のソースコード
+https://github.com/codex-team/editor.js
+変更時はver2.17くらい(2020年4月現在)
+
+
+
+以下は変更箇所
+
+
+
+・修正箇所１　タブ押下時の挙動について
+
+editor.js-master/src/components/modules/blockEvents.ts の
+tabPressed で
+clearSelection を遅延実行することでTab押下時の挙動を修正した
+これをやらないとキャラ選択時に編集中の文字列がすべて消えてしまう。
+
+
+  /**
+   * Open Toolbox to leaf Tools
+   * @param {KeyboardEvent} event
+   */
+  public tabPressed(event): void {
+    /**
+     * Clear blocks selection by tab
+     */
+    this.Editor.BlockSelection.clearSelection(event);
+
+    const { BlockManager, Tools, InlineToolbar, ConversionToolbar } = this.Editor;
+    const currentBlock = BlockManager.currentBlock;
+
+    if (!currentBlock) {
+      return;
+    }
+
+    const canOpenToolbox = Tools.isInitial(currentBlock.tool) && currentBlock.isEmpty;
+    const conversionToolbarOpened = !currentBlock.isEmpty && ConversionToolbar.opened;
+    const inlineToolbarOpened = !currentBlock.isEmpty && !SelectionUtils.isCollapsed && InlineToolbar.opened;
+
+    /**
+     * For empty Blocks we show Plus button via Toolbox only for initial Blocks
+     */
+    if (canOpenToolbox) {
+      this.activateToolbox();
+    } else if (!conversionToolbarOpened && !inlineToolbarOpened) {
+      this.activateBlockSettings();
+    }
+
+    // 選択を解除するための遅延実行 ★変更箇所
+    {
+      let count = 0;
+      const timerId = setInterval(() => {
+        this.Editor.BlockSelection.clearSelection(event);
+        count += 1;
+        if (count > 3) {
+          clearInterval(timerId);
+        }
+      }, 20);
+    }
+  }
+
+
+
+
+
+・修正箇所２　api.blocks.delete(index)の挙動について
+
+editor.js-master/src/components/modules/api/blocks.ts の
+delete()が
+blockIndexを受け取っていなかったので修正した
+
+これは単純にバグっぽい
+引数の指定ができないので削除するブロックが指定できず、
+常に現在のブロックを削除する挙動になっていた。
+
+
+
+
+
+・修正箇所３　ツールボックスの十字キーの挙動について
+
+editor.js-master/src/components/flipper.ts の
+constructor でのkeydownイベントを書き換えた。
+初期の挙動では上と左、下と右がそれぞれ同じ挙動になっていたため。
+
+
+    /**
+     * Listening all keydowns on document and react on TAB/Enter press
+     * TAB will leaf iterator items
+     * ENTER will click the focused item
+     */
+    document.addEventListener('keydown', (event) => {
+      const isReady = this.isEventReadyForHandling(event);
+
+      if (!isReady) {
+        return;
+      }
+
+      /**
+       * Prevent only used keys default behaviour
+       * (allows to navigate by ARROW DOWN, for example)
+       */
+      if (Flipper.usedKeys.includes(event.keyCode)) {
+        event.preventDefault();
+      }
+
+      switch (event.keyCode) {
+        case _.keyCodes.TAB:
+          this.handleTabPress(event);
+          break;
+        case _.keyCodes.LEFT:
+          this.flipLeft();
+          break;
+        case _.keyCodes.UP:	// ★修正箇所
+          this.flipLeft();
+          this.flipLeft();
+          this.flipLeft();
+          break;
+        case _.keyCodes.RIGHT:
+          this.flipRight();
+          break;
+        case _.keyCodes.DOWN:	// ★修正箇所
+          this.flipRight();
+          this.flipRight();
+          this.flipRight();
+          break;
+        case _.keyCodes.ENTER:
+          this.handleEnterPress(event);
+          break;
+      }
+    }, false);
+
+
+
+
+
+
+
