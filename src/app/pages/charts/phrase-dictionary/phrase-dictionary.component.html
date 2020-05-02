@@ -1,0 +1,42 @@
+<nb-card>
+  <nb-card-header>
+    フレーズ辞書の選択
+  </nb-card-header>
+  <nb-card-body>
+    <div (dragover)="dragover($event)" (dragleave)="dragleave($event)" (drop)="drop($event)" [style.background]="dropAreaColor">
+      <p class="drop-zone">
+        フレーズ辞書(.pdic)をここにドラッグ&ドロップ<br>
+        または<br>
+        <input type="file" (change)="onChangeInput($event)">
+      </p>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header id="phraseGraph">
+    フレーズの表示
+  </nb-card-header>
+  <nb-card-body>
+    <ngx-phrase-graph graphid="_main"></ngx-phrase-graph>
+  </nb-card-body>
+</nb-card>
+
+<nb-card class="own-scroll">
+  <nb-card-header>フレーズ一覧（{{filename}}）</nb-card-header>
+  <nb-card-body>
+    <!--input class="search__input" type="text" placeholder="Search"-->
+    <form id="form1" [formGroup]="checkoutForm" (ngSubmit)="onSubmit(checkoutForm.value)">
+      <input id="sbox" name="s" type="text" placeholder="キーワードを入力" formControlName="serchWord"/>
+      <button id="sbtn" type="submit">検索</button>
+    </form>
+    <nb-list style="height: 60vh;">
+      <nb-list-item *ngFor="let p of phrase">
+        <button [style.color]="textColor" (click)="onClick(p.num)" nbButton ghost>
+          {{ p.title }}
+        </button>
+      </nb-list-item>
+    </nb-list>
+  </nb-card-body>
+</nb-card>
+

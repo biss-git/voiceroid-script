@@ -1,0 +1,76 @@
+<nb-card>
+  <nb-card-header>
+    台本の読込
+  </nb-card-header>
+  <nb-card-body>
+    <div (dragover)="dragover($event)" (dragleave)="dragleave($event)" (drop)="drop($event)" [style.background]="dropAreaColor">
+      <p class="drop-zone">
+        台本(.txt, .vois)、キャラクター情報(.vcha)をここにドラッグ&ドロップ<br>
+        または<br>
+        <input type="file" (change)="onChangeInput($event)">
+      </p>
+    </div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    台本編集
+  </nb-card-header>
+  <nb-card-body>
+    <div [id]="id" style="height: 65vh;"></div>
+  </nb-card-body>
+  <button nbButton outline (click)="onSave()">
+    ファイルに保存　（.vois）
+  </button>
+  <button nbButton outline (click)="onSaveTabText()">
+    タブ付きテキストに保存　（.txt）
+  </button>
+</nb-card>
+
+<nb-card>
+  <nb-card-header id="characterList">
+    キャラクター情報編集
+  </nb-card-header>
+  <nb-card-body>
+    <button nbButton outline (click)="allCheck()">
+      すべてチェック
+    </button>
+    <ng-container *ngFor="let c of characters">
+      <ul>
+        <li>
+          <h5>{{c.id}}</h5>
+        </li>
+        <li>
+          <nb-toggle [(checked)]="c.show" style="margin:10px,0,0,0"></nb-toggle>
+        </li>
+        <li>
+          <img [src]="c.src" [alt]="c.name" width="50px" height="50px"/>
+        </li>
+        <li>
+          <input type="text" [(ngModel)]="c.name" [style.background]="bgColor" [style.color]="textColor"/>
+        </li>
+      </ul>
+    </ng-container>
+    <br>
+  </nb-card-body>
+  <button nbButton outline (click)="onSaveChara()">
+    ファイルに保存　（.vcha）
+  </button>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    VOICEROID2 用スクリプト
+  </nb-card-header>
+  <nb-card-body>
+    <button nbButton outline (click)="GenerateScript()">
+      生成
+    </button>
+    <button nbButton outline (click)="CopyScript()">
+      クリップボードにコピー
+    </button>
+    <pre id="scriptElement" [style.color]="textColor" style="max-height: 65vh; margin-top:25px; margin-left:10px;">{{script}}</pre>
+  </nb-card-body>
+</nb-card>
+

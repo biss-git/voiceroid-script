@@ -1,0 +1,93 @@
+.phraseColor{
+  color: #333333 !important;
+}
+
+
+/*フォーム全体*/
+#form1{
+  position:relative;/*フォームの相対位置*/
+  max-width:270px;/*フォームのサイズ*/
+  margin-bottom:15px;/*フォームの下に余白*/
+  height: 45px;
+  margin: 0,0,0,20px;
+}
+/*検索ボックス*/
+#sbox{
+  position:absolute;/*フォームの絶対位置*/
+  left:0;
+  top:0;
+  outline:0;/*クリック時の青い枠線消す*/
+  height:40px;/*検索ボックスの高さ*/
+  width: 270px;
+  padding:0 10px;/*テキスト位置調整*/
+  border-radius:2px 0 0 2px;/*検索ボックスの角を丸める*/
+  background:#eee;/*検索ボックスの背景カラー*/
+}
+/*検索ボタン*/
+#sbtn{
+  width:70px;/*検索ボタンの横幅*/
+  height:40px;/*検索ボタンの縦幅*/
+  position:absolute;/*検索ボタンの絶対位置*/
+  left:270px;/*検索ボタンの位置調整*/
+  top:0;
+  border-radius:0 2px 2px 0;/*検索ボタンの角を丸める*/
+  background:#7fbfff;/*検索ボタンの背景カラー*/
+  border:none;/*検索ボタンの枠線を消す*/
+  color:#fff;/*検索ボタンのテキストカラー*/
+  font-weight:bold;/*検索ボタンのテキスト太字*/
+  font-size:16px;/*検索ボタンのフォントサイズ*/
+  }
+  /*検索ボタンマウスオーバー時*/
+  #sbtn:hover{
+  color:#666;/*検索ボタンマウスオーバー時のフォントカラー*/
+}
+
+
+.drop-zone {
+  width: auto;
+  height: 200px;
+  border: 5px dashed #999;
+  color: #999;
+  font-size: 150%;
+  font-weight: bold;
+  text-align: center;
+  padding: 30px 0 0 0;
+  line-height: 40px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+
+.ce-toolbox {
+  background-color: red;
+}
+
+ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+li {
+  list-style: none;
+}
+
+li > input {
+  margin-top: 10px;
+  margin-left: 15px;
+  border: 0;
+}
+
+li > h5 {
+  margin-top: 10px;
+  margin-right: 15px;
+}
+
+li > img {
+  margin-left: 10px;
+}
+
+nb-toggle {
+  margin-top: 10px;
+}
