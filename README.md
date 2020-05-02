@@ -1,0 +1,2 @@
+# voiceroid-script
+voiceroid script
