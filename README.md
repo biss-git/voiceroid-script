@@ -41,6 +41,6 @@ y軸をまとめたり、グラフ上に注釈をつけたり、画像として�
 ただ、Plotly.updateやrelayoutなどの動作が難しく、軸範囲の初期値が古いままだったり、widthやheightを変更するとresizeが効かなくなったりします。
 
 
-# 作ったひと
+## 作ったひと
 [ビス](https://biss-git.github.io/Portfolio/)
 
