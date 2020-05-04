@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { NbToggleModule } from '@nebular/theme';
+import { NbToggleModule, NbSelectModule } from '@nebular/theme';
 import {
   NbButtonModule,
   NbCardModule,
@@ -19,6 +19,7 @@ import { FormsModule } from '@angular/forms';
     NbButtonModule,
     NbToggleModule,
     FormsModule,
+    NbSelectModule,
   ],
   declarations: [
     ...routedComponents,

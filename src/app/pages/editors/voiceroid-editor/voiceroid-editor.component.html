@@ -64,6 +64,12 @@
     ボイスロイド２用スクリプト
   </nb-card-header>
   <nb-card-body>
+    <nb-select [(ngModel)]="charaNameType" style="width: 258px;">
+      <nb-option value="use">キャラ名をつける</nb-option>
+      <nb-option value="no use">キャラ名をつけない</nb-option>
+      <nb-option value="all">キャラ名をすべてにつける</nb-option>
+    </nb-select>
+    <br>
     <button nbButton outline (click)="GenerateScript()">
       生成
     </button>

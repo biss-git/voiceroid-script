@@ -4,6 +4,8 @@
 angular.jsonのoutputPathをdocsにする
 
 ng build --prod --base-href="https://biss-git.github.io/voiceroid-script/"
+または
+ng build --prod --base-href="./"
 としてビルド
 
 生成されたdocsフォルダをgithubにコミット
@@ -20,5 +22,10 @@ Source で 「master brance/docs folder」 みたいなのを選ぶ
 angular-cli-ghpages がどうのこうのという記事をいくつか見つけたが、
 そんなのは関係なかった
 
+
+GitHub上でのルーティングを上手くやるために
+HashLocationStrategyを使う
+以下が参考サイト
+https://neos21.hatenablog.com/entry/2018/08/16/080000
 
 

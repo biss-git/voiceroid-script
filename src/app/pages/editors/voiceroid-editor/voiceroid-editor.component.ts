@@ -26,6 +26,7 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
   dropAreaColor = '#eeeeee';
 
   script = '';
+  charaNameType = 'use';
 
   characters = [
     { id: 0, show: true, name: '', src: '', isNull: true},
@@ -53,7 +54,6 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
       this.editor = new EditorJS(this.config);
     }, 10);
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
-      console.log(config);
       VoiceroidEditorPlugin.bgColor = config.variables.bg.toString();
       VoiceroidEditorPlugin.textColor = config.variables.fgText.toString();
       this.reflesh();
@@ -237,6 +237,7 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
       data => {
         let script = '';
         let currentShow = true;
+        let name = '';
         data.blocks.forEach((block) => {
 
           // 表示・非表示の判定
@@ -246,7 +247,7 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
           }
           const chara = this.characters[block.data['id']];
           if (!chara.show ||
-             chara.name == '' && !currentShow){
+             chara.isNull && !currentShow){
             // そのキャラにチェックがついていない　または
             // キャラ名が空で現在の状態が非表示　の場合は出力しない
             currentShow = false;
@@ -256,8 +257,13 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
 
           // 台詞一つ分の文字列を生成
           let line = '';
-          const name = chara.name;
-          if (name){
+          if (!chara.isNull){
+            name = chara.name;
+            if(this.charaNameType == 'use' && name){
+              line = name + '＞';
+            }
+          }
+          if(this.charaNameType == 'all' && name){
             line = name + '＞';
           }
           line += block.data['text'].replace(/<br>/g, '\r\n');
@@ -309,7 +315,6 @@ class VoiceroidEditorPlugin {
 
   private initId: number = 0;
   private initText: string = '';
-  private tempText: string = '';
 
   private api: API;
 
@@ -360,7 +365,7 @@ class VoiceroidEditorPlugin {
 
     this.textInput.value = this.initText;
     this.initText = '';
-    this.toggleTune(VoiceroidEditorPlugin.characters[this.initId]);
+    this.toggleTune(VoiceroidEditorPlugin.characters[this.initId], true);
     setTimeout(() => {
       this.resizeTextArea();
     }, 10);
@@ -370,7 +375,6 @@ class VoiceroidEditorPlugin {
 
   private onKeyUp(e) {
     if (e.code == 'Tab'){
-      this.tempText = this.textInput.value;
       /*
        * タブ押下時の挙動について
        * editor.js-master/src/components/modules/blockEvents.ts の tabPressedでclearSelectionを遅延実行することでTab押下時の挙動を修正した
@@ -392,7 +396,7 @@ class VoiceroidEditorPlugin {
   private onKeyDown(e) {
     const currentBlockIndex = this.api.blocks.getCurrentBlockIndex();
 
-    if ( e.code == 'Backspace' &&
+    if ( e.key == 'Backspace' &&
         this.api.blocks.getBlocksCount() > 1 &&
         this.textInput.selectionStart == 0 )
     {
@@ -407,24 +411,35 @@ class VoiceroidEditorPlugin {
       }
 
       // セルの先頭でbackspaceを押したときの処理
-      currentBlock.getElementsByTagName('textarea')[0].value += this.textInput.value;
+      const currentTextArea = currentBlock.getElementsByTagName('textarea')[0];
+      const tempPosition = currentTextArea.textLength;
+      currentTextArea.value += this.textInput.value;
+      setTimeout(() => {
+        currentTextArea.selectionStart = tempPosition;
+        currentTextArea.selectionEnd = tempPosition;
+      }, 30);
       this.api.blocks.delete(deleteTargetIndex);
     }
 
 
     // delete キーでパラグラフを削除するとき
-    if ( e.code == 'Delete' &&
+    if ( e.key == 'Delete' &&
         this.textInput.value.length == this.textInput.selectionStart &&
         currentBlockIndex < this.api.blocks.getBlocksCount() - 1)
     {
       const nextIndex = currentBlockIndex + 1;
       const nextBlock = this.api.blocks.getBlockByIndex(nextIndex);
+      const tempPosition = this.textInput.selectionStart;
       this.textInput.value += nextBlock.getElementsByTagName('textarea')[0].value;
+      setTimeout(() => {
+        this.textInput.selectionStart = tempPosition;
+        this.textInput.selectionEnd = tempPosition;
+      }, 30);
       this.api.blocks.delete(nextIndex);
     }
 
     // Enter キーで改行するとき
-    if ( e.code == 'Enter')
+    if ( e.key == 'Enter')
     {
       const newBlock = this.api.blocks.getBlockByIndex(currentBlockIndex);
       if (newBlock.getElementsByTagName('textarea')[0] == this.textInput){
@@ -433,7 +448,13 @@ class VoiceroidEditorPlugin {
       }
       newBlock.getElementsByTagName('textarea')[0].value = this.textInput.value.substr(this.textInput.selectionStart);
       this.textInput.value = this.textInput.value.substr(0, this.textInput.selectionStart);
+      setTimeout(() => {
+        this.textInput.selectionStart = 0;
+        this.textInput.selectionEnd = 0;
+      }, 30);
     }
+
+    this.resizeTextArea();
 
     /*
      * api.blocks.delete(index)の挙動について
@@ -466,7 +487,7 @@ class VoiceroidEditorPlugin {
       wrapper.appendChild(button);
 
       button.addEventListener('click', () => {
-        this.toggleTune(tune);
+        this.toggleTune(tune, false);
         button.classList.toggle('cdx-settings-button--active');
       });
     });
@@ -474,7 +495,7 @@ class VoiceroidEditorPlugin {
     return wrapper;
   }
 
-  private toggleTune(tune) {
+  private toggleTune(tune, isNew:boolean) {
     this.id = tune.id;
     let imag: string;
     if(tune.isNull){
@@ -485,12 +506,12 @@ class VoiceroidEditorPlugin {
     }
     this.div.innerHTML = imag;
     this.div.appendChild(this.textInput);
-    if (this.tempText){
-      this.textInput.value = this.tempText;
+    if(!isNew){
+      setTimeout(() => {
+        this.textInput.selectionStart = this.textInput.value.length;
+        this.textInput.selectionEnd = this.textInput.value.length;
+      }, 50);
     }
-    setTimeout(() => {
-      this.textInput.selectionStart = this.textInput.value.length;
-    }, 100);
     this.api.toolbar.close();
     this.api.tooltip.hide();
   }
