@@ -134,6 +134,7 @@ export class PhraseService {
 
       const m2: string = phrase.substring(0, 2);
       if ( this.m2List.includes(m2) ){
+        // ２文字でヒット
         count += 1;
         const dv = phrase.substring(2, 3);
         let dv_str = '';
@@ -174,6 +175,7 @@ export class PhraseService {
 
       const m1: string = phrase.substring(0, 1);
       if ( this.m1List.includes(m1) ){
+        // １文字でヒット
         count += 1;
         const dv = phrase.substring(1, 2);
         let dv_str = '';
@@ -217,6 +219,7 @@ export class PhraseService {
       }
       else if ( m1 === '|' ){
         a = 0;
+        count += 1;
         moras.push(moras[moras.length - 1]);
         moras_text.push('');
         acc.push(null);

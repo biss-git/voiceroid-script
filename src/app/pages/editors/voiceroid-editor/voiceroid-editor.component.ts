@@ -6,6 +6,7 @@ import { FileloadService } from '../../../service/fileload.service';
 import { DownloadService } from '../../../service/download.service';
 import { CharactorsService } from '../../../service/charactors.service';
 import {API} from '@editorjs/editorjs';
+import { stringify } from 'querystring';
 
 @Component({
   selector: 'ngx-voiceroid-editor',
@@ -151,12 +152,12 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
     const blocks = [];
     const lines = text.split(/\r\n|\r|\n/);
     lines.forEach((line) => {
-      const tabs = line.match(/\t+/);
       let id = 0;
-      if (tabs){
+      if( line.indexOf('\t') === 0 ){
+        const tabs = line.match(/\t+/);
         id = tabs[0].length;
       }
-      line = line.replace(/\t+/, '');
+      line = line.replace('\t', '');
       blocks.push({
         'type': 'paragraph',
         'data': {
@@ -311,10 +312,12 @@ class VoiceroidEditorPlugin {
   private id: number = 0;
 
   private div: HTMLDivElement;
+  private img: HTMLImageElement;
   private textInput: HTMLTextAreaElement;
 
   private initId: number = 0;
   private initText: string = '';
+  static tempText: string = '';
 
   private api: API;
 
@@ -345,6 +348,16 @@ class VoiceroidEditorPlugin {
   render(){
 
     this.div = document.createElement('div');
+
+    this.img = document.createElement('img');
+    this.img.width = 50;
+    this.img.height = 10;
+    this.img.style.flex = '0 0 50px';
+    this.img.style.margin = '6px 10px 0 0';
+    this.img.src = 'assets/images/null.png';
+    this.img.alt = '';
+
+    this.div.appendChild(this.img);
 
     this.textInput = document.createElement('textarea');
     this.textInput.classList.add('ce-paragraph', 'cdx-block');
@@ -412,8 +425,11 @@ class VoiceroidEditorPlugin {
 
       // セルの先頭でbackspaceを押したときの処理
       const currentTextArea = currentBlock.getElementsByTagName('textarea')[0];
-      const tempPosition = currentTextArea.textLength;
-      currentTextArea.value += this.textInput.value;
+      let tempPosition = currentTextArea.textLength;
+      if(this.textInput.value && currentTextArea.value){
+        currentTextArea.value += "\n" + this.textInput.value;
+        tempPosition += 1;
+      }
       setTimeout(() => {
         currentTextArea.selectionStart = tempPosition;
         currentTextArea.selectionEnd = tempPosition;
@@ -446,12 +462,36 @@ class VoiceroidEditorPlugin {
         // Enter押下時に新しいブロックが作られていなければ何もしない
         return;
       }
-      newBlock.getElementsByTagName('textarea')[0].value = this.textInput.value.substr(this.textInput.selectionStart);
-      this.textInput.value = this.textInput.value.substr(0, this.textInput.selectionStart);
+
+      let newText= this.textInput.value.substr(this.textInput.selectionStart);
+      if( newText.indexOf('\n') === 0 ){
+        newText = newText.substr(1);
+      }
+      newBlock.getElementsByTagName('textarea')[0].value = newText;
+
+      let currentText = this.textInput.value.substr(0, this.textInput.selectionStart)
+      if((currentText.lastIndexOf('\n') + 1 === currentText.length)&&(1<=currentText.length)){
+        currentText = currentText.substr(0, currentText.length-1);
+      }
+      this.textInput.value = currentText;
       setTimeout(() => {
         this.textInput.selectionStart = 0;
         this.textInput.selectionEnd = 0;
       }, 30);
+    }
+
+    // Alt キーが押されたときにブロックの内容をクリップボードに貼り付ける
+    if ( e.key == 'Alt' &&
+         navigator.clipboard){
+      navigator.clipboard.writeText(this.textInput.value);
+    }
+
+    // Tab　キーの後直ぐにEnterキーが押されたときにテキストが消滅するバグの対応
+    if (e.code == 'Tab'){
+      VoiceroidEditorPlugin.tempText = this.textInput.value;
+      setTimeout(() => {
+        VoiceroidEditorPlugin.tempText = '';
+      }, 500);
     }
 
     this.resizeTextArea();
@@ -482,7 +522,7 @@ class VoiceroidEditorPlugin {
       const button = document.createElement('div');
 
       button.classList.add('cdx-settings-button');
-      const img = '<img width="30" height="30" style="margin: 2px;" src="' + tune.src + '" alt="画像"></img>';
+      const img = '<img width="30" height="30" style="margin: 2px;" src="' + tune.src + '" alt="画"></img>';
       button.innerHTML = img;
       wrapper.appendChild(button);
 
@@ -499,13 +539,18 @@ class VoiceroidEditorPlugin {
     this.id = tune.id;
     let imag: string;
     if(tune.isNull){
-      imag = '<img width="50" height="10" style="flex: 0 0 50px; margin-right: 10px; margin-top: 6px;" src="assets/images/null.png" alt=""></img>';
+      this.img.height = 10;
+      this.img.src = 'assets/images/null.png';
+      this.img.alt = '';
     }
     else{
-      imag = '<img width="50" height="50" style="flex: 0 0 50px; margin-right: 10px; margin-top: 6px;" src="' + tune.src + '" alt="' + tune.name + '"></img>';
+      this.img.height = 50;
+      this.img.src = tune.src;
+      this.img.alt = tune.name;
     }
-    this.div.innerHTML = imag;
-    this.div.appendChild(this.textInput);
+    if(!this.textInput.value && VoiceroidEditorPlugin.tempText){
+      this.textInput.value = VoiceroidEditorPlugin.tempText;
+    }
     if(!isNew){
       setTimeout(() => {
         this.textInput.selectionStart = this.textInput.value.length;

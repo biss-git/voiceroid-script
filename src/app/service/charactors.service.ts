@@ -37,6 +37,13 @@ export class CharactorsService {
           text: '「ボイスロイド２用スクリプト」からボイスロイドに読み上げてもらうテキストを生成できます。'
         }
       },
+      {
+        type: 'paragraph',
+        data: {
+          id: 4,
+          text: '「Altキー」で選択中のブロックのテキストをコピーできます。'
+        }
+      },
     ]
   };
 
