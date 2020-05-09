@@ -41,4 +41,5 @@ Thumbs.db
 
 # private data
 sandbox
-environments
+environment.ts
+environment.prod.ts
