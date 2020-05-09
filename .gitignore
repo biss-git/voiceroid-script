@@ -39,7 +39,6 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# 以下はプライベートなものが入っているファイル
+# private data
 sandbox
-environment.prod.ts
-environment.ts
+environments
