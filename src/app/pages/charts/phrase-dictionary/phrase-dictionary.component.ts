@@ -158,7 +158,6 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
 
     const target = document.getElementById('phraseGraph');
     target.scrollIntoView();
-    console.log(event.data);
   }
 
   // 検索処理

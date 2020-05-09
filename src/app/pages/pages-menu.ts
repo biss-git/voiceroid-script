@@ -12,14 +12,12 @@ export const MENU_ITEMS: NbMenuItem[] = [
     link: '/pages/charts/PhraseDictionary',
     home: true,
   },
-  /*
   {
     title: 'サンドボックス',
     icon: 'pie-chart-outline',
     link: '/pages/editors/sandbox',
     home: true,
   },
-  */
 
   /*
   {
