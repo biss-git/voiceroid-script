@@ -1,9 +1,9 @@
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { PhraseService } from '../../../service/phrase.service';
-import { FormBuilder } from '@angular/forms';
+//import { FormBuilder } from '@angular/forms';
 import { NbThemeService } from '@nebular/theme';
 import { FileloadService } from '../../../service/fileload.service';
-import { LayoutService } from '../../../@core/utils';
+//import { LayoutService } from '../../../@core/utils';
 
 @Component({
   selector: 'ngx-phrase-dictionary',
@@ -13,13 +13,16 @@ import { LayoutService } from '../../../@core/utils';
 export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
 
   constructor(private phraseService: PhraseService,
-              private formBuilder: FormBuilder,
+              //private formBuilder: FormBuilder,
               private theme: NbThemeService,
               private fileload: FileloadService) {
+                /*
     this.checkoutForm = this.formBuilder.group({
       serchWord: '',
-    });
+    });*/
   }
+
+
 
   // 色
   bgColor = '#eeeeee';
@@ -31,10 +34,38 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
   phrase = [];
   number = 0;
 
-  checkoutForm; // 検索のためのフォーム
+  //checkoutForm; // 検索のためのフォーム
 
   private themeSubscription: any;
-  private layoutSubscription: any;
+  //private layoutSubscription: any;
+
+  settings = {
+    pager: {
+      perPage: 10,
+    },
+    actions:{
+      add: false,
+      edit: false,
+      position:'right',
+    },
+    delete: {
+      title:"a",
+      deleteButtonContent: '<i class="nb-edit"></i>',
+      confirmDelete: true,
+    },
+    columns: {
+      num: {
+        title: 'ID',
+        type: 'number',
+        width: '100px',
+      },
+      title: {
+        title: 'フレーズ',
+        type: 'string',
+        width: '90%',
+      },
+    },
+  };
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -113,13 +144,32 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
 
   }
 
+  onDeleteConfirm(event): void {
+    event.confirm.reject();
+    if (this.phraseService.phrase == null ||
+        event.data==null || event.data.num == null){
+     return;
+    }
+
+    this.phraseService.num = event.data.num;
+    this.phraseService.num %= this.phraseService.phrase.length;
+    this.phraseService.selectPhrase(this.phraseService.num);
+    this.phraseService.changePhrase();
+
+    const target = document.getElementById('phraseGraph');
+    target.scrollIntoView();
+    console.log(event.data);
+  }
+
   // 検索処理
+  /*
   onSubmit(data): boolean{
     // ボイスロイドの辞書は全角で保存されているため、全角で検索する
     const zenkakuWard = this.hankakuToZenkaku(data.serchWord);
     this.phrase = this.phraseService.phrase.filter(x => x.title.includes(zenkakuWard));
     return false;
   }
+  */
 
   // 半角英数字を全角に直して返す
   private hankakuToZenkaku(str) {

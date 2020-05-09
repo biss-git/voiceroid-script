@@ -70,8 +70,16 @@ export class PhraseGraphComponent implements AfterViewInit, OnDestroy  {
     this.layout.title = this.phraseService.title;
     const phrase = this.phraseService.value;
 
-    // グラフデータに変換
-    const graph = this.phraseService.phraseToGraph(phrase);
+    let graph
+    try{
+      // グラフデータに変換
+      graph = this.phraseService.phraseToGraph(phrase);
+    }
+    catch(e){
+      console.log("フレーズの読込に失敗しました。");
+      console.log(e);
+      return;
+    }
 
     this.data[0].x = graph['moras'];
     this.data[0].y = graph['acc'];
@@ -114,7 +122,6 @@ export class PhraseGraphComponent implements AfterViewInit, OnDestroy  {
       }
     }
     this.layout.annotations = annotations;
-
 
     // グラフ作成
     if (isNew){
@@ -182,7 +189,6 @@ export class PhraseGraphComponent implements AfterViewInit, OnDestroy  {
   private generateImage(withDownload: boolean){
     this.imageHeight = Math.round( Math.max(100, Math.min(this.imageHeight, 4000)) );
     this.imageWidth = Math.round( Math.max(100, Math.min(this.imageWidth, 4000)) );
-    console.log(this.imageWidth, ', ', this.imageHeight);
     Plotly.newPlot(this.id, this.data, this.layout, this.options)
     .then((gd) => {
       Plotly.toImage(gd, {format: 'png', height: this.imageHeight, width: this.imageWidth}as Plotly.ToImgopts)

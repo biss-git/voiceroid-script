@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { EditorsComponent } from './editors.component';
 import { VoiceroidEditiorComponent } from './voiceroid-editor/voiceroid-editor.component'
+import { SandboxComponent } from './sandbox/sandbox.component';
 
 const routes: Routes = [{
   path: '',
@@ -10,6 +11,9 @@ const routes: Routes = [{
   children: [{
     path: 'voiceroid-editor',
     component: VoiceroidEditiorComponent,
+  },{
+    path: 'sandbox',
+    component: SandboxComponent,
   }],
 }];
 
@@ -21,4 +25,5 @@ export class EditorsRoutingModule { }
 
 export const routedComponents = [
   EditorsComponent,
+  SandboxComponent,
 ];

@@ -10,6 +10,7 @@ import {
 } from '@nebular/theme';
 
 import { ThemeModule } from '../../@theme/theme.module';
+import { Ng2SmartTableModule } from 'ng2-smart-table';
 
 import { ChartsRoutingModule, routedComponents } from './charts-routing.module';
 import { PhraseDictionaryComponent } from './phrase-dictionary/phrase-dictionary.component';
@@ -37,6 +38,7 @@ const components = [
     FormsModule,
     ReactiveFormsModule,
     NbToggleModule,
+    Ng2SmartTableModule,
     ],
   declarations: [
     ...routedComponents,

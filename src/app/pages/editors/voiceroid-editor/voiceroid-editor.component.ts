@@ -156,8 +156,8 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
       if( line.indexOf('\t') === 0 ){
         const tabs = line.match(/\t+/);
         id = tabs[0].length;
+        line = line.replace(/\t+/, '');
       }
-      line = line.replace('\t', '');
       blocks.push({
         'type': 'paragraph',
         'data': {

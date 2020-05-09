@@ -225,14 +225,11 @@ export class PhraseService {
         acc.push(null);
       }
       else if ( m1 === '(' ){
+        let val = 1;
         const array = phrase.match(/[0-9]+\.?[0-9]*/g);
-        if (array.length == 0){
-          console.log('phrase');
-          console.log(phrase);
-          phrase = phrase.substr(1);
-          continue;
+        if(array){
+          val = parseFloat(array[0]);
         }
-        const val = parseFloat(array[0]);
         switch ( phrase.substring(0, 4) ) {
           case '(EMP':
             e = val;

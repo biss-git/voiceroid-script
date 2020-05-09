@@ -10,6 +10,7 @@ import { ThemeModule } from '../../@theme/theme.module';
 import { EditorsRoutingModule, routedComponents } from './editors-routing.module';
 import { VoiceroidEditiorComponent } from './voiceroid-editor/voiceroid-editor.component';
 import { FormsModule } from '@angular/forms';
+import { SandboxComponent } from './sandbox/sandbox.component';
 
 @NgModule({
   imports: [
@@ -24,6 +25,7 @@ import { FormsModule } from '@angular/forms';
   declarations: [
     ...routedComponents,
     VoiceroidEditiorComponent,
+    SandboxComponent,
   ],
 })
 export class EditorsModule { }

@@ -14,6 +14,15 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   /*
   {
+    title: 'サンドボックス',
+    icon: 'pie-chart-outline',
+    link: '/pages/editors/sandbox',
+    home: true,
+  },
+  */
+
+  /*
+  {
     title: 'Miscellaneous',
     icon: 'shuffle-2-outline',
     children: [
