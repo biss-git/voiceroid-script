@@ -12,7 +12,6 @@ import {
   SeoService,
   StateService,
 } from './utils';
-import { UserData } from './data/users';
 import { ElectricityData } from './data/electricity';
 import { SmartTableData } from './data/smart-table';
 import { UserActivityData } from './data/user-activity';
@@ -72,7 +71,6 @@ const socialLinks = [
 ];
 
 const DATA_SERVICES = [
-  { provide: UserData, useClass: UserService },
   { provide: ElectricityData, useClass: ElectricityService },
   { provide: SmartTableData, useClass: SmartTableService },
   { provide: UserActivityData, useClass: UserActivityService },

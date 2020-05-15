@@ -3,19 +3,16 @@
     台本の読込
   </nb-card-header>
   <nb-card-body>
-    <div (dragover)="dragover($event)" (dragleave)="dragleave($event)" (drop)="drop($event)" [style.background]="dropAreaColor">
-      <p class="drop-zone">
-        台本(.txt, .vois)、キャラクター情報(.vcha)をここにドラッグ&ドロップ<br>
-        または<br>
-        <input type="file" (change)="onChangeInput($event)">
-      </p>
-    </div>
+    <ngx-drop-area (fileLoad)="onFileLoad($event)" text="台本(.txt, .vois)、キャラクター情報(.vcha)" type="UTF-8"></ngx-drop-area>
   </nb-card-body>
 </nb-card>
 
 <nb-card>
   <nb-card-header>
     台本編集
+    <button nbButton outline (click)="refresh()" style="float: right">
+      更新 / キャラクター情報の適用
+    </button>
   </nb-card-header>
   <nb-card-body>
     <div [id]="id" style="height: 65vh;"></div>
@@ -34,24 +31,13 @@
   </nb-card-header>
   <nb-card-body>
     <button nbButton outline (click)="allCheck()">
-      すべてチェック
+      すべて表示 / 非表示
     </button>
-    <ng-container *ngFor="let c of characters">
-      <ul>
-        <li>
-          <h5>{{c.id}}</h5>
-        </li>
-        <li>
-          <nb-toggle [(checked)]="c.show" style="margin:10px,0,0,0"></nb-toggle>
-        </li>
-        <li>
-          <img [src]="c.src" [alt]="c.name" width="50px" height="50px"/>
-        </li>
-        <li>
-          <input type="text" [(ngModel)]="c.name" [style.background]="bgColor" [style.color]="textColor"/>
-        </li>
-      </ul>
-    </ng-container>
+    <button nbButton outline (click)="reNumbering()">
+      ID の 整理
+    </button>
+    <ng2-smart-table [settings]="settings" [source]="characters" (deleteConfirm)="onDeleteConfirm($event)" (editConfirm)="onEditConfirm($event)" (createConfirm)="onCreateConfirm($event)">
+    </ng2-smart-table>
     <br>
   </nb-card-body>
   <button nbButton outline (click)="onSaveChara()">
@@ -64,18 +50,35 @@
     ボイスロイド２用スクリプト
   </nb-card-header>
   <nb-card-body>
-    <nb-select [(ngModel)]="charaNameType" style="width: 258px;">
-      <nb-option value="use">キャラ名をつける</nb-option>
-      <nb-option value="no use">キャラ名をつけない</nb-option>
-      <nb-option value="all">キャラ名をすべてにつける</nb-option>
+    <span style="display: inline-block; width: 90px;">キャラ名</span>
+    <nb-select [(ngModel)]="charaNameType" style="width: 148px;">
+      <nb-option value="no use">つけない</nb-option>
+      <nb-option value="use">つける</nb-option>
+      <nb-option value="all">すべてにつける</nb-option>
     </nb-select>
-    <br>
-    <button nbButton outline (click)="GenerateScript()">
-      生成
-    </button>
-    <button nbButton outline (click)="CopyScript()">
-      クリップボードにコピー
-    </button>
+    <div style="display: flex; align-items: center; justify-content: flex-start; margin: 10px 0 10px 0;">
+      <span style="display: inline-block; width: 90px;">区切り</span>
+      <nb-toggle [(checked)]="breakBar"></nb-toggle>
+    </div>
+    <ng-container *ngIf="breakBar">
+      <span style="margin-left: 20px; display: inline-block; width: 90px;">区切る単位</span>
+      <nb-select [(ngModel)]="breakType" style="width: 108px;">
+        <nb-option value="enter">行</nb-option>
+        <nb-option value="block">ブロック</nb-option>
+      </nb-select>
+      <br>
+      <span style="margin-left: 20px; display: inline-block; width: 90px;">区切り文字</span>
+      <input type="text" [(ngModel)]="breakChara" [style.background]="bgColor" [style.color]="textColor" style="margin:10px 0 10px 0; width: 108px"/>
+      <br>
+    </ng-container>
+    <div style="margin: 20px 0 0 0">
+      <button nbButton outline (click)="generateScript()">
+        生成
+      </button>
+      <button nbButton outline (click)="copyScript()">
+        クリップボードにコピー
+      </button>
+    </div>
     <pre id="scriptElement" [style.color]="textColor" style="max-height: 65vh; margin-top:25px; margin-left:10px;">{{script}}</pre>
   </nb-card-body>
 </nb-card>

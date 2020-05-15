@@ -1,10 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NbMediaBreakpointsService, NbMenuService, NbSidebarService, NbThemeService } from '@nebular/theme';
 
-import { UserData } from '../../../@core/data/users';
 import { LayoutService } from '../../../@core/utils';
 import { map, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { UserService } from '../../../@core/mock/users.service';
+import { GoogleApiService } from '../../../service/google-api.service';
+import { UserInfo } from '../../../@core/data/file-info';
 
 @Component({
   selector: 'ngx-header',
@@ -15,7 +17,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private destroy$: Subject<void> = new Subject<void>();
   userPictureOnly: boolean = false;
-  user: any;
+  user: UserInfo;
 
   themes = [
     {
@@ -38,22 +40,44 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   currentTheme = 'default';
 
-  userMenu = [ { title: 'Profile' }, { title: 'Log out' } ];
+  userMenu = [
+    { title: 'プロフィール' },
+    { title: 'ログイン' },
+    { title: 'ログアウト' },
+  ];
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
               private themeService: NbThemeService,
-              private userService: UserData,
+              private userService: UserService,
               private layoutService: LayoutService,
-              private breakpointService: NbMediaBreakpointsService) {
+              private breakpointService: NbMediaBreakpointsService,
+              private googleAPI: GoogleApiService) {
   }
+
+  private userSubscription: Subscription;  // フレーズデータの変更を受け取るやつ
 
   ngOnInit() {
     this.currentTheme = this.themeService.currentTheme;
 
-    this.userService.getUsers()
+    this.userService.getUser()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((users: any) => this.user = users.nick);
+      .subscribe((user: UserInfo) => this.user = user );
+
+    this.userSubscription = this.userService.userChange.subscribe((user: any) => this.user = user);
+
+    this.menuService.onItemClick()
+    .pipe(
+      map(({ item: { title } }) => title),
+    )
+    .subscribe(title =>{
+      if(title == 'ログイン'){
+        this.googleAPI.signIn();
+      }
+      else if(title == 'ログアウト'){
+        this.googleAPI.signOut();
+      }
+    });
 
     const { xl } = this.breakpointService.getBreakpointsMap();
     this.themeService.onMediaQueryChange()
@@ -74,6 +98,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    this.userSubscription.unsubscribe();
   }
 
   changeTheme(themeName: string) {

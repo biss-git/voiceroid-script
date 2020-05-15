@@ -1,12 +1,12 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import EditorJS from '@editorjs/editorjs';
-//import VoiceroidEditor from './plugin/voiceroid-editor';
-import { NbThemeService } from '@nebular/theme';
+import { NbThemeService, NbTable } from '@nebular/theme';
 import { FileloadService } from '../../../service/fileload.service';
 import { DownloadService } from '../../../service/download.service';
 import { CharactorsService } from '../../../service/charactors.service';
 import {API} from '@editorjs/editorjs';
-import { stringify } from 'querystring';
+import { DomSanitizer } from '@angular/platform-browser';
+import { FileInfo } from '../../../@core/data/file-info';
 
 @Component({
   selector: 'ngx-voiceroid-editor',
@@ -18,16 +18,21 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
   constructor(private theme: NbThemeService,
               private download: DownloadService,
               private fileload: FileloadService,
-              private charaService: CharactorsService) { }
+              private charaService: CharactorsService,
+              private sanitizer: DomSanitizer,
+              private changeDetectorRef: ChangeDetectorRef) { }
 
   id: string = 'editorjs';
 
   bgColor = '#eeeeee';
   textColor = '#222222';
-  dropAreaColor = '#eeeeee';
 
   script = '';
   charaNameType = 'use';
+
+  breakBar = false;
+  breakChara = '/';
+  breakType = 'block';
 
   characters = [
     { id: 0, show: true, name: '', src: '', isNull: true},
@@ -43,12 +48,183 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
     },
   };
 
+
+  settings = {
+    //selectMode: 'multi',
+    //mode: 'external',
+    pager: {
+      perPage: 50,
+    },
+    actions:{
+      //add: false,
+      //edit: false,
+      //delete: false,
+      position:'right',
+      //select: true,
+    },
+    add: {
+      addButtonContent: '<i class="nb-plus"></i>',
+      createButtonContent: '<i class="nb-checkmark"></i>',
+      cancelButtonContent: '<i class="nb-close"></i>',
+      confirmCreate: true,
+    },
+    edit: {
+      editButtonContent: '<i class="nb-edit"></i>',
+      saveButtonContent: '<i class="nb-checkmark"></i>',
+      cancelButtonContent: '<i class="nb-close"></i>',
+      confirmSave: true,
+    },
+    delete: {
+      deleteButtonContent: '<i class="nb-trash"></i>',
+      confirmDelete: true,
+    },
+    columns: {
+      show: {
+        title: '表示',
+        type: 'html',
+        valuePrepareFunction: (value,value2) => {
+          const index = this.characters.indexOf(value2);
+          const id = 'showTableItem' + index;
+          setTimeout(() => {
+            const element = document.getElementById(id);
+            if(element){
+              element.addEventListener('change', (e) => {
+                this.characters[index].show = event.target['checked'];
+              });
+            }
+          }, 30);
+          const checked = value ? 'checked' : '';
+          return this.sanitizer.bypassSecurityTrustHtml(
+            //'<input id="' + id + '" type="checkbox" ' + checked + ' style="color: #f00">表示</input>'
+            '<div class="sample3Area"><input id="' + id + '" class="sample3AreaChild" type="checkbox" ' + checked + '><label style="cursor: pointer;" for="' + id + '"><span></span></label></div>'
+          );
+        },
+        filter: false,
+        sort: false,
+        editable: false,
+        width: '50px',
+      },
+      id: {
+        title: 'ID',
+        type: 'html',
+        valuePrepareFunction: (value) => {
+          return this.sanitizer.bypassSecurityTrustHtml(
+            '<h5>' + value + '</h5>'
+          );
+        },
+        filter: false,
+        sort: false,
+        editable: false,
+        width: '50px',
+      },
+      src: {
+        title: '画像',
+        type: 'html',
+        valuePrepareFunction: (value,value2) => {
+          return this.sanitizer.bypassSecurityTrustHtml(
+            '<img src="' + value2.src + '" alt="画像" width="50px" height="50px"/>'
+            );
+        },
+        filter: false,
+        sort: false,
+        width: '50px',
+      },
+      name: {
+        title: 'キャラクター名',
+        type: 'string',
+        filter: false,
+        sort: false,
+        width: "70%",
+      },
+      up: {
+        title: '',
+        type: 'html',
+        valuePrepareFunction: (value,value2) => {
+          const index = this.characters.indexOf(value2);
+          const id = 'upTableItem' + index;
+          setTimeout(() => {
+            const element = document.getElementById(id);
+            if(element){
+              element.addEventListener('click', (e) => {
+                if(index > 1){
+                  const distNum = index-1;
+                  const temp = this.characters[distNum];
+                  this.characters[distNum] = this.characters[index];
+                  this.characters[index] = temp;
+                  this.refreshTable();
+                }
+              });
+            }
+          }, 30);
+          return this.sanitizer.bypassSecurityTrustHtml(
+            '<svg id="' + id + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px; " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="arrow-upward"><rect width="24" height="24" transform="rotate(180 12 12)" opacity="0"/><path d="M5.23 10.64a1 1 0 0 0 1.41.13L11 7.14V19a1 1 0 0 0 2 0V7.14l4.36 3.63a1 1 0 1 0 1.28-1.54l-6-5-.15-.09-.13-.07a1 1 0 0 0-.72 0l-.13.07-.15.09-6 5a1 1 0 0 0-.13 1.41z"/></g></g></svg>'
+            );
+        },
+        filter: false,
+        sort: false,
+        editable: false,
+        width: '50px',
+      },
+      down: {
+        title: '',
+        type: 'html',
+        valuePrepareFunction: (value,value2) => {
+          const index = this.characters.indexOf(value2);
+          const id = 'downTableItem' + index;
+          setTimeout(() => {
+            const element = document.getElementById(id);
+            if(element){
+              element.addEventListener('click', (e) => {
+              if(index > 0 && index<this.characters.length-1){
+                const distNum = index+1;
+                const temp = this.characters[distNum];
+                this.characters[distNum] = this.characters[index];
+                this.characters[index] = temp;
+                this.refreshTable();
+              }
+            });
+          }
+        }, 30);
+          return this.sanitizer.bypassSecurityTrustHtml(
+            '<svg id="' + id + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="arrow-downward"><rect width="24" height="24" opacity="0"/><path d="M18.77 13.36a1 1 0 0 0-1.41-.13L13 16.86V5a1 1 0 0 0-2 0v11.86l-4.36-3.63a1 1 0 1 0-1.28 1.54l6 5 .15.09.13.07a1 1 0 0 0 .72 0l.13-.07.15-.09 6-5a1 1 0 0 0 .13-1.41z"/></g></g></svg>'
+            );
+        },
+        filter: false,
+        sort: false,
+        editable: false,
+        width: '50px',
+      },
+    },
+  };
+
+  refreshTable(){
+    this.charaService.characters = [].concat(this.characters);
+    this.characters = this.charaService.characters;
+  }
+
+  reNumbering(){
+    const changeTable: number[] = [];
+
+    for(let i = 0; i < this.characters.length; i++){
+      changeTable.push(this.characters[i].id);
+      this.characters[i].id = i;
+      this.characters[i].isNull = false;
+    }
+    this.characters[0].isNull = true;
+    this.characters[0].src = 'assets/images/null.png';
+
+    this.refreshTable();
+
+    this.refresh(changeTable);
+  }
+
+
   private themeSubscription: any;
 
   ngAfterViewInit() {
     setTimeout(() => {
       this.characters = this.charaService.characters;
-      VoiceroidEditorPlugin.characters = this.charaService.characters;
+      VoiceroidEditorPlugin.characters = this.characters;
       if(this.charaService.tempData){
         this.config.data = this.charaService.tempData;
       }
@@ -57,11 +233,10 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
       VoiceroidEditorPlugin.bgColor = config.variables.bg.toString();
       VoiceroidEditorPlugin.textColor = config.variables.fgText.toString();
-      this.reflesh();
+      this.refresh();
       setTimeout(() => {
         this.bgColor = config.variables.bg.toString();
         this.textColor = config.variables.fgText.toString();
-        this.dropAreaColor = this.bgColor;
       }, 10);
     });
   }
@@ -75,10 +250,25 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
   }
 
   // エディターを作りなおしてリフレッシュする、主に背景色、文字色、キャラクター情報を適用するため
-  private reflesh(){
+  refresh(changeTable: number[] = null){
     if (this.editor){
       this.editor.save().then(
         data => {
+
+          if(changeTable){
+            let table: number [] = [];
+            for(let i=0; i<changeTable.length; i++){
+              table.push(changeTable.indexOf(i));
+            }
+            data.blocks.forEach(block => {
+              if(block.data['id'] < table.length){
+                block.data['id'] = table[block.data['id']];
+              }
+            });
+          }
+
+          VoiceroidEditorPlugin.characters = this.characters;
+
           this.config.data = data;
           this.editor.destroy();
           this.editor = new EditorJS(this.config);
@@ -87,64 +277,27 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // ファイルを選択からファイルを読み込むとき
-  onChangeInput(event) {
-    if (event.target.files.length > 0){
-      const file = event.target.files[0];
-      this.readFile(file);
+  onFileLoad(file: FileInfo){
+    let data;
+    if (file.extension == '.vois'){
+      data = JSON.parse(file.content);
     }
-  }
-
-  // ファイルのドラッグ＆ドロップのとき
-  drop(e){
-    e.stopPropagation();
-    e.preventDefault();
-    if (e.dataTransfer.files.length > 0){
-      const file = e.dataTransfer.files[0];
-      this.readFile(file);
+    else if(file.extension == '.vcha'){
+      this.charaService.characters = JSON.parse(file.content);
+      this.characters = this.charaService.characters;
+      this.refresh();
+      setTimeout(() => {
+        const target = document.getElementById('characterList');
+        target.scrollIntoView();
+      }, 1000);
+      return;
     }
-    this.dropAreaColor = this.bgColor;
-    return false;
-  }
-  dragover(e){
-    e.stopPropagation();
-    e.preventDefault();
-    this.dropAreaColor = '#dddddd';
-  }
-  dragleave(e){
-    e.stopPropagation();
-    e.preventDefault();
-    this.dropAreaColor = this.bgColor;
-  }
-
-  private readFile(file){
-    //this.filename = file.name;
-    const extension = this.fileload.getExtension(file.name);
-    this.fileload.fileToText(file, false)
-      .then(text => {
-        let data;
-        if (extension == '.vois'){
-          data = JSON.parse(text);
-        }
-        else if(extension == '.vcha'){
-          this.charaService.characters = JSON.parse(text);
-          this.characters = this.charaService.characters;
-          VoiceroidEditorPlugin.characters = this.charaService.characters;
-          this.reflesh();
-          setTimeout(() => {
-            const target = document.getElementById('characterList');
-            target.scrollIntoView();
-          }, 1000);
-          return;
-        }
-        else{
-          data = this.TabTextToBlocks(text);
-        }
-        this.config.data = data;
-        this.editor.destroy();
-        this.editor = new EditorJS(this.config);
-      })
-      .catch(err => console.log(err));
+    else{
+      data = this.TabTextToBlocks(file.content);
+    }
+    this.config.data = data;
+    this.editor.destroy();
+    this.editor = new EditorJS(this.config);
   }
 
   // タブ付き文字をeditor に対応した形式に直す
@@ -216,6 +369,7 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
         c.show = true;
       }
     });
+    this.refreshTable();
   }
   private hideAllCharacters(){
     this.characters.forEach( (c) => {
@@ -223,6 +377,49 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
         c.show = false;
       }
     });
+    this.refreshTable();
+  }
+
+  // キャラクターを追加
+  onCreateConfirm(event): void {
+    if(!event.newData.id || event.newData.id==0){
+      event.newData.id = this.characters.length;
+    }
+    event.newData.show = true;
+    event.confirm.resolve(event.newData);
+    setTimeout(() => {
+      this.characters = event.source.data;
+      const temp = this.characters.shift();
+      this.characters.splice(1,0,temp);
+      this.refreshTable();
+    }, 10);
+  }
+
+  // キャラクターを編集
+  onEditConfirm(event): void {
+    if(event.newData.id == 0){
+      event.newData.src = 'assets/images/null.png';
+    }
+    event.confirm.resolve(event.newData);
+  }
+
+  // キャラクターを削除
+  onDeleteConfirm(event): void {
+    if(event.data.id == 0){
+      window.alert('このキャラクターは削除できません。');
+      event.confirm.reject(event.data);
+      return;
+    }
+
+    if (window.confirm('「' + event.data.name + '」のキャラクター情報を削除しますか？')) {
+      event.confirm.resolve(event.data);
+    } else {
+      event.confirm.reject(event.data);
+    }
+    setTimeout(() => {
+      this.characters = event.source.data;
+      this.refreshTable();
+    }, 10);
   }
 
   // キャラクター情報を保存
@@ -233,20 +430,21 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
 
 
   // ボイスロイド２用のスクリプト生成
-  GenerateScript(){
+  generateScript(){
     this.editor.save().then(
       data => {
         let script = '';
         let currentShow = true;
-        let name = '';
+        let name = null;
         data.blocks.forEach((block) => {
 
           // 表示・非表示の判定
-          if (block.data['id'] == null){
+          const id = block.data['id'];
+          const chara = this.characters.find(c => c.id==id);
+          if (id == null || chara == null){
             // id が不明な場合は何もしない
             return;
           }
-          const chara = this.characters[block.data['id']];
           if (!chara.show ||
              chara.isNull && !currentShow){
             // そのキャラにチェックがついていない　または
@@ -264,19 +462,37 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
               line = name + '＞';
             }
           }
-          if(this.charaNameType == 'all' && name){
+          if(this.charaNameType == 'all' && (name || chara.name)){
+            if(chara.name){
+              name = chara.name;
+            }
             line = name + '＞';
           }
-          line += block.data['text'].replace(/<br>/g, '\r\n');
-          script += line + '\r\n';
+          line += block.data['text'];
+
+          // 区切り文字を付ける
+          if(this.breakBar){
+            if(this.breakType == 'enter'){
+              line = line.replace(/\n/g,'/\n') + '/';
+            }
+            else if(this.breakType == 'block'){
+              line = line + '/';
+            }
+          }
+
+          script += line + '\n';
         });
+
+        if(script.slice(-2) == '/\n'){
+          script = script.slice(0, -2);
+        }
         this.script = script;
       },
     );
   }
 
   // ボイスロイド２用スクリプトをクリップボードにコピー
-  CopyScript(){
+  copyScript(){
     if (navigator.clipboard){
       navigator.clipboard.writeText(this.script).then(
         () => {/* 成功 */},
@@ -332,7 +548,12 @@ class VoiceroidEditorPlugin {
       this.initText = '';
     }
     if (data.id){
-      this.initId = data.id;
+      for(let i=0; i<VoiceroidEditorPlugin.characters.length; i++){
+        if(VoiceroidEditorPlugin.characters[i].id == data.id){
+          this.initId = i;
+          break;
+        }
+      }
     }
   }
 
@@ -522,7 +743,8 @@ class VoiceroidEditorPlugin {
       const button = document.createElement('div');
 
       button.classList.add('cdx-settings-button');
-      const img = '<img width="30" height="30" style="margin: 2px;" src="' + tune.src + '" alt="画"></img>';
+      const src = tune.src!='' ? tune.src : 'assets/images/null.png';
+      const img = '<img width="30" height="30" style="margin: 2px;" src="' + src + '" alt="画"></img>';
       button.innerHTML = img;
       wrapper.appendChild(button);
 
@@ -537,17 +759,18 @@ class VoiceroidEditorPlugin {
 
   private toggleTune(tune, isNew:boolean) {
     this.id = tune.id;
-    let imag: string;
+    let src = '';
     if(tune.isNull){
       this.img.height = 10;
-      this.img.src = 'assets/images/null.png';
+      src = 'assets/images/null.png';
       this.img.alt = '';
     }
     else{
       this.img.height = 50;
-      this.img.src = tune.src;
+      src =  VoiceroidEditorPlugin.characters.find(c => c.id==tune.id).src;
       this.img.alt = tune.name;
     }
+    this.img.src = src!='' ? src : 'assets/images/null.png';
     if(!this.textInput.value && VoiceroidEditorPlugin.tempText){
       this.textInput.value = VoiceroidEditorPlugin.tempText;
     }

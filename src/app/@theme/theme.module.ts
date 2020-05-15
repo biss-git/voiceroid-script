@@ -38,6 +38,7 @@ import { DEFAULT_THEME } from './styles/theme.default';
 import { COSMIC_THEME } from './styles/theme.cosmic';
 import { CORPORATE_THEME } from './styles/theme.corporate';
 import { DARK_THEME } from './styles/theme.dark';
+import { DropAreaComponent } from './components/drop-area/drop-area.component';
 
 const NB_MODULES = [
   NbLayoutModule,
@@ -61,6 +62,7 @@ const COMPONENTS = [
   OneColumnLayoutComponent,
   ThreeColumnsLayoutComponent,
   TwoColumnsLayoutComponent,
+  DropAreaComponent,
 ];
 const PIPES = [
   CapitalizePipe,

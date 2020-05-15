@@ -1,0 +1,7 @@
+<div (dragover)="dragover($event)" (dragleave)="dragleave($event)" (drop)="drop($event)" [style.background]="dropAreaColor">
+  <p class="drop-zone">
+    {{text}}をここにドラッグ&ドロップ<br>
+    または<br>
+    <input type="file" (change)="onChangeInput($event)">
+  </p>
+</div>

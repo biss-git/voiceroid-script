@@ -11,6 +11,7 @@ import { EditorsRoutingModule, routedComponents } from './editors-routing.module
 import { VoiceroidEditiorComponent } from './voiceroid-editor/voiceroid-editor.component';
 import { FormsModule } from '@angular/forms';
 import { SandboxComponent } from './sandbox/sandbox.component';
+import { Ng2SmartTableModule } from 'ng2-smart-table';
 
 @NgModule({
   imports: [
@@ -21,6 +22,7 @@ import { SandboxComponent } from './sandbox/sandbox.component';
     NbToggleModule,
     FormsModule,
     NbSelectModule,
+    Ng2SmartTableModule,
   ],
   declarations: [
     ...routedComponents,

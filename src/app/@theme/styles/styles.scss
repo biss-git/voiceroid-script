@@ -31,3 +31,67 @@
 
   @include nb-overrides();
 };
+
+
+
+// 以下は表示非表示を切り替えるボタンのためのCSS
+
+/* === ボタンを表示するエリア ============================== */
+.sample3Area {
+  margin         : auto;                /* 中央寄せ           */
+  width          : 60px;                /* ボタンの横幅       */
+}
+
+ /* === チェックボックス ==================================== */
+.sample3Area input[type="checkbox"] {
+  display        : none;            /* チェックボックス非表示 */
+}
+
+ /* === チェックボックスのラベル（標準） ==================== */
+.sample3Area label {
+  display        : block;               /* ボックス要素に変更 */
+  box-sizing     : border-box;          /* 枠線を含んだサイズ */
+  text-align     : center;              /* 文字位置は中央     */
+  border         : 2px solid #ccc;      /* 枠線(一旦四方向)   */
+  border-radius  : 3px;                 /* 角丸               */
+  height         : 50px;                /* ボタンの高さ       */
+  font-size      : 18px;                /* 文字サイズ         */
+  line-height    : 50px;                /* 太字               */
+  font-weight    : bold;                /* 太字               */
+  background     : #eee;                /* 背景色             */
+  box-shadow     : 3px 3px 6px #888;    /* 影付け             */
+  transition     : .3s;                 /* ゆっくり変化       */
+  margin         : 0;
+}
+
+ /* === ON側のチェックボックスのラベル（ONのとき） ========== */
+.sample3Area label span:after{
+  content        : "非表示";               /* 表示する文字       */
+  color          : #aaa;
+}
+.sample3Area #sample3check:checked + label {
+  //background     : #78bd78;             /* 背景色             */
+  background     : #3366ff;             /* 背景色             */
+  box-shadow     : none;                /* 影を消す           */
+}
+.sample3Area #sample3check:checked + label span:after {
+  content        : "表示";                /* 表示する文字       */
+  color          : #fff;                /* 文字色             */
+}
+
+.sample3AreaChild:checked + label {
+  //background     : #78bd78;             /* 背景色             */
+  background     : #3366ff;             /* 背景色             */
+  box-shadow     : none;                /* 影を消す           */
+}
+.sample3AreaChild:checked + label span:after {
+  content        : "表示";                /* 表示する文字       */
+  color          : #fff;                /* 文字色             */
+}
+
+
+// アイコンにホバーしたときに色を変える
+.myIconHover :hover{
+  fill: #3366ff;  // 塗りつぶし
+  stroke: #3366ff; // 線
+}

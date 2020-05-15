@@ -1,4 +1,5 @@
 import { NbMenuItem } from '@nebular/theme';
+import { environment } from '../../environments/environment';
 
 export const MENU_ITEMS: NbMenuItem[] = [
   {
@@ -17,6 +18,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
     icon: 'pie-chart-outline',
     link: '/pages/editors/sandbox',
     home: true,
+    hidden: environment.sandboxHidden,
   },
 
   /*
