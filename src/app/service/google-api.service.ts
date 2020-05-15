@@ -17,7 +17,7 @@ export class GoogleApiService {
       gapi.client.init({
         clientId: environment.googleAPIclientID,
         discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-        scope: 'https://www.googleapis.com/auth/drive'
+        scope: 'https://www.googleapis.com/auth/drive.file'
       }).then( () => {
         // Listen for sign-in state changes.
         gapi.auth2.getAuthInstance().isSignedIn.listen((s) => this.updateSigninStatus(s));
