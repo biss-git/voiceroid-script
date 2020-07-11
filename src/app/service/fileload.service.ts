@@ -25,6 +25,19 @@ export class FileloadService {
     });
   }
 
+  fileToArrayBuffer(file): Promise<ArrayBuffer> {
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+    return new Promise((resolve, reject) => {
+      reader.onload = () => {
+        resolve(reader.result as ArrayBuffer);
+      };
+      reader.onerror = () => {
+        reject(reader.error);
+      };
+    });
+  }
+
   getExtension(filename: string): string{
     return '.' + filename.split('.').pop();
   }

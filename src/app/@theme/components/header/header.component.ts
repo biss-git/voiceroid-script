@@ -41,7 +41,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentTheme = 'default';
 
   userMenu = [
-    { title: 'プロフィール' },
+    //{ title: 'プロフィール' },
     { title: 'ログイン' },
     { title: 'ログアウト' },
   ];
@@ -64,7 +64,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((user: UserInfo) => this.user = user );
 
-    this.userSubscription = this.userService.userChange.subscribe((user: any) => this.user = user);
+    this.userSubscription = this.userService.userChange.subscribe((user: any) => {
+      this.user = user
+      if(this.googleAPI.userExists()){
+        this.userMenu = [
+          { title: 'ログアウト' },
+        ];
+      }else{
+        this.userMenu = [
+          { title: 'ログイン' },
+        ];
+      }
+    });
 
     this.menuService.onItemClick()
     .pipe(

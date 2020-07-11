@@ -3,6 +3,12 @@ import { environment } from '../../environments/environment';
 
 export const MENU_ITEMS: NbMenuItem[] = [
   {
+    title: 'プロジェクト',
+    icon: 'text-outline',
+    link: '/pages/editors/script-project',
+    home: true,
+  },
+  {
     title: '台本編集',
     icon: 'text-outline',
     link: '/pages/editors/voiceroid-editor',

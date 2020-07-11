@@ -13,8 +13,9 @@ export class DropAreaComponent implements OnInit, OnDestroy {
   @Input() text: string = '';
   @Input() type: string = 'UTF-8';
 
-  @Output() fileLoad = new EventEmitter<FileInfo>();
+  @Output() fileLoad = new EventEmitter<FileInfo[]>();
 
+  private files:FileInfo[] = [];
 
   constructor(private theme: NbThemeService,
               private fileload: FileloadService) { }
@@ -41,8 +42,10 @@ export class DropAreaComponent implements OnInit, OnDestroy {
   // ファイルを選択からファイルを読み込むとき
   onChangeInput(event) {
     if (event.target.files.length > 0){
-      const file = event.target.files[0];
-      this.readFile(file);
+      this.files = [];
+      for(let i=0; i<event.target.files.length; i++){
+        this.readFile(event.target.files[i], i==event.target.files.length-1);
+      }
     }
   }
 
@@ -51,8 +54,10 @@ export class DropAreaComponent implements OnInit, OnDestroy {
     e.stopPropagation();
     e.preventDefault();
     if (e.dataTransfer.files.length > 0){
-      const file = e.dataTransfer.files[0];
-      this.readFile(file);
+      this.files = [];
+      for(let i=0; i<e.dataTransfer.files.length; i++){
+        this.readFile(e.dataTransfer.files[i], i==e.dataTransfer.files.length-1);
+      }
     }
     this.dropAreaColor = this.bgColor;
     return false;
@@ -70,17 +75,45 @@ export class DropAreaComponent implements OnInit, OnDestroy {
 
 
 
-  private readFile(file){
-    this.fileload.fileToText(file, this.type=="SJIS")
+  private readFile(file, isFinal:boolean){
+    const extention: string = this.fileload.getExtension(file.name);
+    switch(extention){
+      case '.txt':
+      case '.pdic':
+      case '.vcha':
+      case '.vois':
+      case '.vpc':
+      case '.settings':
+      this.fileload.fileToText(file, this.type=="SJIS" || extention==".pdic")
       .then(text => {
         const fileInfo: FileInfo = {
           name: file.name,
           extension: this.fileload.getExtension(file.name),
           content: text,
         }
-        this.fileLoad.emit(fileInfo);
+        this.files.push(fileInfo);
+        if(isFinal){
+          this.fileLoad.emit(this.files);
+        }
       })
       .catch(err => console.log(err));
+      break;
+      default:
+        this.fileload.fileToArrayBuffer(file)
+        .then(bitArray => {
+          const fileInfo: FileInfo = {
+            name: file.name,
+            extension: this.fileload.getExtension(file.name),
+            content: bitArray,
+          }
+          this.files.push(fileInfo);
+          if(isFinal){
+            this.fileLoad.emit(this.files);
+          }
+        })
+        .catch(err => console.log(err));
+        break;
+    }
   }
 
 }

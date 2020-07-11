@@ -277,13 +277,13 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  onFileLoad(file: FileInfo){
+  onFileLoad(files: FileInfo[]){
     let data;
-    if (file.extension == '.vois'){
-      data = JSON.parse(file.content);
+    if (files[0].extension == '.vois'){
+      data = JSON.parse(files[0].content);
     }
-    else if(file.extension == '.vcha'){
-      this.charaService.characters = JSON.parse(file.content);
+    else if(files[0].extension == '.vcha'){
+      this.charaService.characters = JSON.parse(files[0].content);
       this.characters = this.charaService.characters;
       this.refresh();
       setTimeout(() => {
@@ -292,8 +292,11 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
       }, 1000);
       return;
     }
+    else if(files[0].extension == '.txt'){
+      data = this.TabTextToBlocks(files[0].content);
+    }
     else{
-      data = this.TabTextToBlocks(file.content);
+      return;
     }
     this.config.data = data;
     this.editor.destroy();

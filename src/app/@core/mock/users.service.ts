@@ -5,7 +5,7 @@ import { UserInfo } from '../data/file-info';
 @Injectable()
 export class UserService {
 
-  private user: UserInfo = { displayName: 'Nick Jones', photoLink: 'assets/images/nick.png', emailAddress:'' };
+  private user: UserInfo = { displayName: 'ログイン', photoLink: 'assets/images/nick.png', emailAddress:'' };
   private currentUser: UserInfo;
 
   userChange = new Subject<UserInfo>();

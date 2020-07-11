@@ -1,0 +1,48 @@
+<nb-card>
+  <nb-card-header>
+    ファイルの読込
+  </nb-card-header>
+  <nb-card-body>
+    <ngx-drop-area (fileLoad)="onFileLoad($event)" text="色々なファイル" type="UTF-8"></ngx-drop-area>
+    注意：これらはGoogle Drive 上にアップされ公開されるので著作権や個人情報には十分注意してください。
+    <button nbButton outline>
+      Googleドライブに保存されたプロジェクトを開く
+    </button>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    調声データ
+  </nb-card-header>
+  <ng2-smart-table [settings]="scriptSettings" [source]="scriptSource" (deleteConfirm)="onDeleteConfirm($event,'script')"></ng2-smart-table>
+  <ng2-smart-table [settings]="characterSettings" [source]="characterSource" (deleteConfirm)="onDeleteConfirm($event,'character')"></ng2-smart-table>
+  <ng2-smart-table [settings]="phraseSettings" [source]="phraseSource" (deleteConfirm)="onDeleteConfirm($event,'phrase')"></ng2-smart-table>
+  <ng2-smart-table [settings]="presetSettings" [source]="presetSource" (deleteConfirm)="onDeleteConfirm($event,'preset')"></ng2-smart-table>
+  <ng2-smart-table [settings]="settingSettings" [source]="settingSource" (deleteConfirm)="onDeleteConfirm($event,'setting')"></ng2-smart-table>
+  <ng2-smart-table [settings]="linkSettings" [source]="linkSource" (deleteConfirm)="onDeleteConfirm($event,'link')"></ng2-smart-table>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    Google ドライブ に保存
+  </nb-card-header>
+  <nb-card-body>
+    <button  nbButton outline>プロジェクトのアップロード</button>
+    <br>
+    <div>プロジェクトID</div>
+    <div>共有リンク</div>
+    <nb-toggle [(checked)]="share">公開</nb-toggle>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    ローカルファイルに保存
+  </nb-card-header>
+  <nb-card-body>
+    <button nbButton outline (click)="saveProject()">
+      プロジェクトファイルのダウンロード (.voisproj)
+    </button>
+  </nb-card-body>
+</nb-card>

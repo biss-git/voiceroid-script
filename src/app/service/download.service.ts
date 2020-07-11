@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import Encoding from 'encoding-japanese';
+import { FileInfo } from '../@core/data/file-info';
 
 @Injectable({
   providedIn: 'root',
@@ -62,5 +64,36 @@ export class DownloadService {
     this.download(url, filename, withDate, extension);
     URL.revokeObjectURL(url);
   }
+
+
+  downloadFile(file: FileInfo){
+    let blob: Blob;
+    if(file.extension == ".pdic"){
+      blob = new Blob([this.toShiftJIS(file.content)], {type: 'text/plain'});
+    }
+    else{
+      blob = new Blob([file.content], {type: 'text/plain'});
+    }
+    const url = URL.createObjectURL(blob);
+    this.download(url, file.name, false, '');
+    URL.revokeObjectURL(url);
+  }
+
+
+
+  toShiftJIS(utf8String: string) {
+    const detected = Encoding.detect(utf8String)
+    const unicodeList = []
+
+    for (let i = 0; i < utf8String.length; i += 1) {
+        unicodeList.push(utf8String.charCodeAt(i))
+    }
+
+    const sjisArray = Encoding.convert(unicodeList, {
+        to: 'SJIS',
+        from: detected
+    })
+    return new Uint8Array(sjisArray)
+}
 
 }

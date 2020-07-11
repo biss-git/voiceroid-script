@@ -12,6 +12,7 @@ import { VoiceroidEditiorComponent } from './voiceroid-editor/voiceroid-editor.c
 import { FormsModule } from '@angular/forms';
 import { SandboxComponent } from './sandbox/sandbox.component';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
+import { ScriptProjectComponent } from './script-project/script-project.component';
 
 @NgModule({
   imports: [
@@ -28,6 +29,7 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
     ...routedComponents,
     VoiceroidEditiorComponent,
     SandboxComponent,
+    ScriptProjectComponent,
   ],
 })
 export class EditorsModule { }

@@ -71,9 +71,9 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
     this.themeSubscription.unsubscribe();
   }
 
-  onFileLoad(file: FileInfo){
-    if(file.extension == '.pdic'){
-      this.phraseService.loadPhrase(file.content, file.name);
+  onFileLoad(files: FileInfo[]){
+    if(files[0].extension == '.pdic'){
+      this.phraseService.loadPhrase(files[0].content, files[0].name);
       this.phrase = this.phraseService.phrase;
       this.phraseService.selectPhrase(0);
       this.phraseService.changePhrase();
