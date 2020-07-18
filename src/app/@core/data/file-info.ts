@@ -20,4 +20,7 @@ export interface UserInfo {
   displayName: string;
   emailAddress: string;
   photoLink: string;
+  kind: string;
+  me: boolean;
+  permissionId: string;
 }

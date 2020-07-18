@@ -1,19 +1,61 @@
+<h2>
+  プロジェクト
+</h2>
+
+<p>
+  ボイスロイド２の調声データをプロジェクトにまとめて Googleドライブ に保存したり、Web上に公開したりできます。<br>
+  注意：このページで扱うデータは Googleドライブ 上にアップロードされ公開される可能性があるので著作権や個人情報には十分注意してください。
+</p>
+
+<!--ログインしていないとき-->
+<ng-container *ngIf="!userExists">
+  <p>
+    ログインしていません。googleアカウントでログインすることでgoogleドライブを使ったプロジェクトの保存や共有が行えます。ログインは画面右上のログインボタンから行えます。
+  </p>
+</ng-container>
+
 <nb-card>
   <nb-card-header>
-    ファイルの読込
+    <h4>ファイルの読込</h4>
   </nb-card-header>
   <nb-card-body>
-    <ngx-drop-area (fileLoad)="onFileLoad($event)" text="色々なファイル" type="UTF-8"></ngx-drop-area>
-    注意：これらはGoogle Drive 上にアップされ公開されるので著作権や個人情報には十分注意してください。
-    <button nbButton outline>
-      Googleドライブに保存されたプロジェクトを開く
-    </button>
+    <ng-container *ngIf="userExists">
+      <h5>Googleドライブ から読込</h5>
+      <button nbButton outline (click)='openDriveProjects(dialog)'>
+        Googleドライブからプロジェクトを開く
+        <nb-icon icon="list-outline"></nb-icon>
+      </button>
+      <br>
+      <br>
+    </ng-container>
+
+    <ng-container *ngIf="queryId">
+      <h5>Googleドライブ からダウンロード id = {{queryId}}</h5>
+      <a [href]="downloadLink">
+        <button nbButton outline>
+          Googleドライブからプロジェクトをダウンロード
+          <nb-icon icon="download-outline"></nb-icon>
+        </button>
+      </a>
+      <br>
+      <br>
+    </ng-container>
+
+    <h5>自分のPC から読込</h5>
+    <ngx-drop-area (fileLoad)="onFileLoad($event)" text="色々な調声データファイル" type="UTF-8"></ngx-drop-area>
   </nb-card-body>
 </nb-card>
 
 <nb-card>
   <nb-card-header>
-    調声データ
+    <h4>
+      調声データ
+      <span *ngIf="projectName">（{{projectName}}）</span>
+      <button nbButton outline style="float: right" (click)="clearProject()">
+        新規
+        <nb-icon icon="square-outline"></nb-icon>
+      </button>
+    </h4>
   </nb-card-header>
   <ng2-smart-table [settings]="scriptSettings" [source]="scriptSource" (deleteConfirm)="onDeleteConfirm($event,'script')"></ng2-smart-table>
   <ng2-smart-table [settings]="characterSettings" [source]="characterSource" (deleteConfirm)="onDeleteConfirm($event,'character')"></ng2-smart-table>
@@ -25,24 +67,74 @@
 
 <nb-card>
   <nb-card-header>
-    Google ドライブ に保存
+    <h4>プロジェクトの保存</h4>
   </nb-card-header>
   <nb-card-body>
-    <button  nbButton outline>プロジェクトのアップロード</button>
-    <br>
-    <div>プロジェクトID</div>
-    <div>共有リンク</div>
-    <nb-toggle [(checked)]="share">公開</nb-toggle>
-  </nb-card-body>
-</nb-card>
+    <ng-container *ngIf="userExists && (!driveProject || myDriveProject)">
+      <h5>Googleドライブ に保存</h5>
+      <button nbButton outline (click)="makeDriveProject()" *ngIf="!driveProject">
+        プロジェクトの作成
+        <nb-icon icon="plus-square-outline"></nb-icon>
+      </button>
+      <button nbButton outline (click)="updateDriveProject()" *ngIf="driveProject">
+        プロジェクトの更新
+        <nb-icon icon="upload-outline"></nb-icon>
+      </button>
+      <br>
+      <div style="margin-left: 20px; margin-top: 15px;" *ngIf="myDriveProject">
+        <h6>公開設定</h6>
+        <div *ngIf="!share" style="margin-left: 5px; margin-top: 5px;">
+          <h6>非公開です</h6>
+          <button nbButton outline (click)="releaseDriveProject()">
+            プロジェクトを公開する
+            <nb-icon icon="eye-outline"></nb-icon>
+          </button>
+        </div>
+        <div *ngIf="share" style="margin-left: 5px; margin-top: 5px;">
+          <h6>公開されています</h6>
+          <div>
+            共有リンク
+            <span style="margin:20px">{{projectShareLink}}</span>
+            <nb-icon icon="copy-outline" class="myIconHover" style="cursor: pointer;" (click)="copyShareLink()"></nb-icon>
+          </div>
+          <button nbButton outline style="margin-top: 10px;" (click)="unreleaseDriveProject()">
+            プロジェクトを非公開にする
+            <nb-icon icon="eye-off-outline"></nb-icon>
+          </button>
+        </div>
+      </div>
+      <br>
+    </ng-container>
 
-<nb-card>
-  <nb-card-header>
-    ローカルファイルに保存
-  </nb-card-header>
-  <nb-card-body>
+    <h5>自分のPC に保存</h5>
     <button nbButton outline (click)="saveProject()">
       プロジェクトファイルのダウンロード (.voisproj)
+      <nb-icon icon="download-outline"></nb-icon>
     </button>
   </nb-card-body>
 </nb-card>
+
+
+
+<!--ファイル選択ダイアログ-->
+<ng-template #dialog let-data let-ref="dialogRef">
+  <nb-card style="max-height: 75vh;">
+    <nb-card-header>
+      <h4>Googleドライブのプロジェクトを開く</h4>
+    </nb-card-header>
+    <nb-card-body>
+      <div *ngFor="let item of driveProjectList">
+        <button nbButton ghost (click)="ref.close(); openDriveProject(item.id)">{{item.name}}</button>
+      </div>
+      <ng-container *ngIf="driveProjectList.length==0">
+        Googleドライブにプロジェクトファイルが見つかりません。
+      </ng-container>
+    </nb-card-body>
+    <nb-card-footer>
+      <button nbButton (click)="ref.close()">
+        閉じる
+        <nb-icon icon="close-outline"></nb-icon>
+      </button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>

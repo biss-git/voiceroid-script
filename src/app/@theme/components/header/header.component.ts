@@ -62,7 +62,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.userService.getUser()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((user: UserInfo) => this.user = user );
+      .subscribe((user: UserInfo) => {
+        this.user = user
+      });
 
     this.userSubscription = this.userService.userChange.subscribe((user: any) => {
       this.user = user

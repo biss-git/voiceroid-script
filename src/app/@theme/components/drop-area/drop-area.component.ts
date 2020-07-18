@@ -84,6 +84,7 @@ export class DropAreaComponent implements OnInit, OnDestroy {
       case '.vois':
       case '.vpc':
       case '.settings':
+      case '.voisproj':
       this.fileload.fileToText(file, this.type=="SJIS" || extention==".pdic")
       .then(text => {
         const fileInfo: FileInfo = {

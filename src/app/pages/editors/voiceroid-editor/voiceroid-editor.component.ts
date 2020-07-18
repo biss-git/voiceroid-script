@@ -1,26 +1,85 @@
-import { Component, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ChangeDetectorRef, OnInit } from '@angular/core';
 import EditorJS from '@editorjs/editorjs';
-import { NbThemeService, NbTable } from '@nebular/theme';
+import { NbThemeService, NbTable, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition } from '@nebular/theme';
 import { FileloadService } from '../../../service/fileload.service';
 import { DownloadService } from '../../../service/download.service';
 import { CharactorsService } from '../../../service/charactors.service';
 import {API} from '@editorjs/editorjs';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FileInfo } from '../../../@core/data/file-info';
+import { ActivatedRoute, ParamMap } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { ScriptProjectService } from '../../../service/script-project.service';
+import { Route } from '@angular/compiler/src/core';
 
 @Component({
   selector: 'ngx-voiceroid-editor',
   templateUrl: './voiceroid-editor.component.html',
   styleUrls: ['./voiceroid-editor.component.scss'],
 })
-export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
+export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  constructor(private theme: NbThemeService,
-              private download: DownloadService,
-              private fileload: FileloadService,
-              private charaService: CharactorsService,
-              private sanitizer: DomSanitizer,
-              private changeDetectorRef: ChangeDetectorRef) { }
+  constructor(
+    private theme: NbThemeService,
+    private download: DownloadService,
+    private charaService: CharactorsService,
+    private sanitizer: DomSanitizer,
+    private toastrService: NbToastrService,
+    private activatedRoute: ActivatedRoute,
+    private projectService: ScriptProjectService) { }
+
+  matrixParamsSubscription: Subscription;
+
+  charaLoad = true;
+  scriptLoad = true;
+  isBusy = false;
+  ngOnInit(): void {
+    setTimeout(() => {
+      if(this.charaLoad){
+        this.characters = this.charaService.characters;
+        VoiceroidEditorPlugin.characters = this.characters;
+      }
+      if(this.scriptLoad){
+        if(this.charaService.tempData){
+          this.config.data = this.charaService.tempData;
+        }
+        this.editor = new EditorJS(this.config);
+      }
+    }, 10);
+
+    this.matrixParamsSubscription = this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
+      if(params.has('number')){
+        const characters = this.projectService.project.characters;
+        this.charaLoad = false;
+        this.scriptLoad = false;
+        this.isBusy = true;
+        if(characters && characters.length > 0){
+          this.onFileLoad(characters);
+        }
+        else{
+          this.characters = this.charaService.characters;
+          VoiceroidEditorPlugin.characters = this.characters;
+        }
+        const number = parseInt( params.get('number'), 10);
+        const scripts = this.projectService.project.scripts;
+        setTimeout(() => {
+          if(scripts && number < scripts.length){
+            this.onFileLoad([scripts[number]]);
+          }
+          else{
+            if(this.charaService.tempData){
+              this.config.data = this.charaService.tempData;
+            }
+            this.editor = new EditorJS(this.config);
+          }
+          const target = document.getElementById('scriptEditor');
+          target.scrollIntoView();
+          this.isBusy = false;
+        }, 100);
+      }
+    });
+
+  }
 
   id: string = 'editorjs';
 
@@ -48,7 +107,9 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
     },
   };
 
-
+  /**
+   * 表の設定
+   */
   settings = {
     //selectMode: 'multi',
     //mode: 'external',
@@ -218,18 +279,9 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
     this.refresh(changeTable);
   }
 
-
-  private themeSubscription: any;
+  private themeSubscription: Subscription;
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      this.characters = this.charaService.characters;
-      VoiceroidEditorPlugin.characters = this.characters;
-      if(this.charaService.tempData){
-        this.config.data = this.charaService.tempData;
-      }
-      this.editor = new EditorJS(this.config);
-    }, 10);
     this.themeSubscription = this.theme.getJsTheme().subscribe(config => {
       VoiceroidEditorPlugin.bgColor = config.variables.bg.toString();
       VoiceroidEditorPlugin.textColor = config.variables.fgText.toString();
@@ -242,11 +294,24 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.themeSubscription.unsubscribe();
-    this.editor.save().then(
-      data => {
-        this.charaService.tempData = data;
-      },
-    );
+    this.matrixParamsSubscription.unsubscribe();
+    if(this.editor){
+      this.editor.save().then(
+        data => {
+          this.charaService.tempData = data;
+        },
+      );
+    }
+  }
+
+  clearEditor(){
+    if (window.confirm('台本データを全て削除します。よろしいですか？')) {
+      if (this.editor){
+        this.editor.destroy();
+        this.config.data = null;
+        this.editor = new EditorJS(this.config);
+      }
+    }
   }
 
   // エディターを作りなおしてリフレッシュする、主に背景色、文字色、キャラクター情報を適用するため
@@ -286,10 +351,12 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
       this.charaService.characters = JSON.parse(files[0].content);
       this.characters = this.charaService.characters;
       this.refresh();
-      setTimeout(() => {
-        const target = document.getElementById('characterList');
-        target.scrollIntoView();
-      }, 1000);
+      if(!this.isBusy){
+        setTimeout(() => {
+          const target = document.getElementById('characterList');
+          target.scrollIntoView();
+        }, 1000);
+      }
       return;
     }
     else if(files[0].extension == '.txt'){
@@ -299,7 +366,9 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
       return;
     }
     this.config.data = data;
-    this.editor.destroy();
+    if(this.editor){
+      this.editor.destroy();
+    }
     this.editor = new EditorJS(this.config);
   }
 
@@ -498,10 +567,30 @@ export class VoiceroidEditiorComponent implements AfterViewInit, OnDestroy {
   copyScript(){
     if (navigator.clipboard){
       navigator.clipboard.writeText(this.script).then(
-        () => {/* 成功 */},
+        () => {
+          this.showToast('primary','クリップボードに共有リンクがコピーされました','');
+        },
         () => {/* 失敗 */},
       );
     }
+  }
+
+  private showToast(type: NbComponentStatus, title: string, body: string) {
+
+    const config = {
+      status: type,
+      destroyByClick: true,
+      duration: 2000,
+      hasIcon: false,
+      position: NbGlobalPhysicalPosition.TOP_RIGHT,
+      preventDuplicates: true,
+    };
+    const titleContent = title ? `. ${title}` : '';
+
+    this.toastrService.show(
+      body,
+      title,
+      config);
   }
 
 }

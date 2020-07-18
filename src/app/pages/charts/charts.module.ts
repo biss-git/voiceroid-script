@@ -7,6 +7,7 @@ import {
   NbListModule,
   NbButtonModule,
   NbToggleModule,
+  NbIconModule,
 } from '@nebular/theme';
 
 import { ThemeModule } from '../../@theme/theme.module';
@@ -35,6 +36,7 @@ const components = [
     NbSelectModule,
     NbListModule,
     NbButtonModule,
+    NbIconModule,
     FormsModule,
     ReactiveFormsModule,
     NbToggleModule,

@@ -1,6 +1,9 @@
+<h2>フレーズ辞書</h2>
+<p>ボイスロイド２のフレーズ辞書データをグラフに表示できます。<br>グラフの編集はできますが、調整データの編集はできません。</p>
+
 <nb-card>
   <nb-card-header>
-    フレーズ辞書の選択
+    <h4>フレーズ辞書の選択</h4>
   </nb-card-header>
   <nb-card-body>
     <ngx-drop-area (fileLoad)="onFileLoad($event)" text="フレーズ辞書(.pdic)" type="SJIS"></ngx-drop-area>
@@ -9,7 +12,7 @@
 
 <nb-card>
   <nb-card-header id="phraseGraph">
-    フレーズの表示
+    <h4>フレーズの表示</h4>
   </nb-card-header>
   <nb-card-body>
     <ngx-phrase-graph graphid="_main"></ngx-phrase-graph>
@@ -17,7 +20,9 @@
 </nb-card>
 
 <nb-card class="own-scroll">
-  <nb-card-header>フレーズ一覧（{{filename}}）</nb-card-header>
+  <nb-card-header>
+    <h4>フレーズ一覧（{{filename}})</h4>
+  </nb-card-header>
   <nb-card-body>
     <ng2-smart-table [settings]="settings" [source]="phrase" (deleteConfirm)="onDeleteConfirm($event)">
     </ng2-smart-table>

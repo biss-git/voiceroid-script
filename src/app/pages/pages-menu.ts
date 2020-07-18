@@ -4,7 +4,7 @@ import { environment } from '../../environments/environment';
 export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'プロジェクト',
-    icon: 'text-outline',
+    icon: 'book-open-outline',
     link: '/pages/editors/script-project',
     home: true,
   },
@@ -15,7 +15,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   {
     title: 'フレーズ辞書',
-    icon: 'pie-chart-outline',
+    icon: 'options-2-outline',
     link: '/pages/charts/PhraseDictionary',
     home: true,
   },

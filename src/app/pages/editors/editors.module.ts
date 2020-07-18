@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { NbToggleModule, NbSelectModule } from '@nebular/theme';
+import { NbToggleModule, NbSelectModule, NbIconModule } from '@nebular/theme';
 import {
   NbButtonModule,
   NbCardModule,
@@ -21,6 +21,7 @@ import { ScriptProjectComponent } from './script-project/script-project.componen
     EditorsRoutingModule,
     NbButtonModule,
     NbToggleModule,
+    NbIconModule,
     FormsModule,
     NbSelectModule,
     Ng2SmartTableModule,

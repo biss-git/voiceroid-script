@@ -3,6 +3,10 @@ import { PhraseService } from '../../../service/phrase.service';
 import { NbThemeService } from '@nebular/theme';
 import { FileloadService } from '../../../service/fileload.service';
 import { FileInfo } from '../../../@core/data/file-info';
+import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ScriptProjectService } from '../../../service/script-project.service';
+import { Subscription } from 'rxjs';
+import { isRegExp } from 'util';
 
 @Component({
   selector: 'ngx-phrase-dictionary',
@@ -11,10 +15,11 @@ import { FileInfo } from '../../../@core/data/file-info';
 })
 export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
 
-  constructor(private phraseService: PhraseService,
-              private theme: NbThemeService,
-              private fileload: FileloadService) {
-  }
+  constructor(
+    private phraseService: PhraseService,
+    private theme: NbThemeService,
+    private activatedRoute: ActivatedRoute,
+    private projectService: ScriptProjectService) {}
 
 
 
@@ -27,7 +32,7 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
   phrase = [];
   number = 0;
 
-  private themeSubscription: any;
+  private themeSubscription: Subscription;
 
   settings = {
     pager: {
@@ -56,6 +61,8 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
     },
   };
 
+  matrixParamsSubscription: Subscription;
+
   ngAfterViewInit() {
     setTimeout(() => {
       this.phrase = this.phraseService.phrase;
@@ -65,6 +72,19 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
       this.bgColor = config.variables.bg.toString();
       this.textColor = config.variables.fgText.toString();
     });
+
+    this.matrixParamsSubscription = this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
+      console.log('params', params);
+      if(params.has('number')){
+        const phrase = this.projectService.project.phraseDictionary
+        if(phrase && phrase.length > 0){
+          setTimeout(() => {
+            this.onFileLoad(phrase);
+          }, 100);
+        }
+      }
+    });
+
   }
 
   ngOnDestroy(): void {

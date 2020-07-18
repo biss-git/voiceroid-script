@@ -4,9 +4,11 @@
   </nb-toggle>
   <button class="box" nbButton outline (click)='downloadImage()'>
     画像をダウンロード
+    <nb-icon icon="download-outline"></nb-icon>
   </button>
   <button class="box" nbButton outline (click)='openImage(dialog)'>
     コピー用の画像を表示
+    <nb-icon icon="square-outline"></nb-icon>
   </button>
 </div>
 <div [id]='id'></div>
@@ -19,18 +21,25 @@
       <input type="number" min="100" max="4000" [(ngModel)]="imageWidth" style="margin-right: 10px;"/>
       縦
       <input type="number" min="100" max="4000" [(ngModel)]="imageHeight" style="margin-right: 10px;"/>
-      <button nbButton (click)="redrawImage()" style="margin-left: 10px;">再描画</button>
+      <button nbButton (click)="redrawImage()" style="margin-left: 10px;">
+        再描画
+        <nb-icon icon="refresh"></nb-icon>
+      </button>
       <nb-toggle class="box2" [(checked)]="checked" (click)="onClick()">
         まとめる
       </nb-toggle>
       <button nbButton outline (click)='downloadImage()'>
         画像をダウンロード
+        <nb-icon icon="download-outline"></nb-icon>
       </button>
       <br>
       <img [src]='imgSrc' alt="画像の生成に失敗しました" width="auto" height="600"/>
     </nb-card-body>
     <nb-card-footer>
-      <button nbButton (click)="ref.close()">閉じる</button>
+      <button nbButton (click)="ref.close()">
+        閉じる
+        <nb-icon icon="close-outline"></nb-icon>
+      </button>
     </nb-card-footer>
   </nb-card>
 </ng-template>

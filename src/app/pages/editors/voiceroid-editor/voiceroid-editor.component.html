@@ -1,6 +1,9 @@
+<h2>台本編集</h2>
+<p>ボイスロイド２で使用できる台本データを編集できます。</p>
+
 <nb-card>
   <nb-card-header>
-    台本の読込
+    <h4>台本の読込</h4>
   </nb-card-header>
   <nb-card-body>
     <ngx-drop-area (fileLoad)="onFileLoad($event)" text="台本(.txt, .vois)、キャラクター情報(.vcha)" type="UTF-8"></ngx-drop-area>
@@ -8,46 +11,83 @@
 </nb-card>
 
 <nb-card>
-  <nb-card-header>
-    台本編集
-    <button nbButton outline (click)="refresh()" style="float: right">
-      更新 / キャラクター情報の適用
-    </button>
+  <nb-card-header id="scriptEditor">
+    <h4>
+      台本編集
+      <button nbButton outline style="float: right" (click)="clearEditor()">
+        新規
+        <nb-icon icon="square-outline"></nb-icon>
+      </button>
+      <button nbButton outline (click)="onSave()" style="float: right">
+        台本保存（.vois）
+        <nb-icon icon="download-outline"></nb-icon>
+      </button>
+      <button nbButton outline (click)="refresh()" style="float: right">
+        更新 / キャラクター情報の適用
+        <nb-icon icon="refresh"></nb-icon>
+      </button>
+    </h4>
   </nb-card-header>
   <nb-card-body>
     <div [id]="id" style="height: 65vh;"></div>
   </nb-card-body>
-  <button nbButton outline (click)="onSave()">
-    ファイルに保存　（.vois）
-  </button>
-  <button nbButton outline (click)="onSaveTabText()">
-    タブ付きテキストに保存　（.txt）
-  </button>
 </nb-card>
 
 <nb-card>
   <nb-card-header id="characterList">
-    キャラクター情報編集
+    <h4>
+      キャラクター情報編集
+      <button nbButton outline (click)="onSaveChara()" style="float: right">
+        キャラクター情報保存　（.vcha）
+        <nb-icon icon="download-outline"></nb-icon>
+      </button>
+      <button nbButton outline (click)="reNumbering()" style="float: right">
+        ID の 整理
+        <nb-icon icon="refresh"></nb-icon>
+      </button>
+    </h4>
   </nb-card-header>
   <nb-card-body>
     <button nbButton outline (click)="allCheck()">
       すべて表示 / 非表示
-    </button>
-    <button nbButton outline (click)="reNumbering()">
-      ID の 整理
+      <nb-icon icon="checkmark-square-outline"></nb-icon>
     </button>
     <ng2-smart-table [settings]="settings" [source]="characters" (deleteConfirm)="onDeleteConfirm($event)" (editConfirm)="onEditConfirm($event)" (createConfirm)="onCreateConfirm($event)">
     </ng2-smart-table>
     <br>
   </nb-card-body>
-  <button nbButton outline (click)="onSaveChara()">
-    ファイルに保存　（.vcha）
-  </button>
 </nb-card>
 
 <nb-card>
   <nb-card-header>
-    ボイスロイド２用スクリプト
+    <h4>ファイルの保存</h4>
+  </nb-card-header>
+  <nb-card-body>
+    <h6>台本</h6>
+    <button nbButton outline (click)="onSave()">
+      台本ファイル　（.vois）
+      <nb-icon icon="download-outline"></nb-icon>
+    </button>
+    <button nbButton outline (click)="onSaveTabText()">
+      タブ付きテキスト　（.txt）
+      <nb-icon icon="download-outline"></nb-icon>
+    </button>
+    <br>
+    <br>
+
+    <h6>キャラクター情報</h6>
+    <button nbButton outline (click)="onSaveChara()">
+      キャラクター情報ファイル　（.vcha）
+      <nb-icon icon="download-outline"></nb-icon>
+    </button>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    <h4>
+      ボイスロイド２用スクリプト
+    </h4>
   </nb-card-header>
   <nb-card-body>
     <span style="display: inline-block; width: 90px;">キャラ名</span>
@@ -74,9 +114,11 @@
     <div style="margin: 20px 0 0 0">
       <button nbButton outline (click)="generateScript()">
         生成
+        <nb-icon icon="text-outline"></nb-icon>
       </button>
       <button nbButton outline (click)="copyScript()">
         クリップボードにコピー
+        <nb-icon icon="copy-outline"></nb-icon>
       </button>
     </div>
     <pre id="scriptElement" [style.color]="textColor" style="max-height: 65vh; margin-top:25px; margin-left:10px;">{{script}}</pre>
