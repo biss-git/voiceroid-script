@@ -63,12 +63,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userService.getUser()
       .pipe(takeUntil(this.destroy$))
       .subscribe((user: UserInfo) => {
-        this.user = user
+        this.user = user;
       });
 
     this.userSubscription = this.userService.userChange.subscribe((user: any) => {
-      this.user = user
-      if(this.googleAPI.userExists()){
+      this.user = user;
+      if (this.googleAPI.userExists()){
         this.userMenu = [
           { title: 'ログアウト' },
         ];
@@ -83,11 +83,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     .pipe(
       map(({ item: { title } }) => title),
     )
-    .subscribe(title =>{
-      if(title == 'ログイン'){
+    .subscribe(title => {
+      if (title == 'ログイン'){
         this.googleAPI.signIn();
       }
-      else if(title == 'ログアウト'){
+      else if (title == 'ログアウト'){
         this.googleAPI.signOut();
       }
     });

@@ -38,10 +38,10 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
     pager: {
       perPage: 10,
     },
-    actions:{
+    actions: {
       add: false,
       edit: false,
-      position:'right',
+      position: 'right',
     },
     delete: {
       deleteButtonContent: '<i class="nb-edit"></i>',
@@ -75,9 +75,9 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
 
     this.matrixParamsSubscription = this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
       console.log('params', params);
-      if(params.has('number')){
-        const phrase = this.projectService.project.phraseDictionary
-        if(phrase){
+      if (params.has('number')){
+        const phrase = this.projectService.project.phraseDictionary;
+        if (phrase){
           setTimeout(() => {
             this.onFileLoad([phrase]);
           }, 100);
@@ -92,7 +92,7 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
   }
 
   onFileLoad(files: FileInfo[]){
-    if(files[0].extension == '.pdic'){
+    if (files[0].extension == '.pdic'){
       this.phraseService.loadPhrase(files[0].content, files[0].name);
       this.phrase = this.phraseService.phrase;
       this.phraseService.selectPhrase(0);
@@ -121,7 +121,7 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
   onDeleteConfirm(event): void {
     event.confirm.reject();
     if (this.phraseService.phrase == null ||
-        event.data==null || event.data.num == null){
+        event.data == null || event.data.num == null){
      return;
     }
 

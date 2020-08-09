@@ -59,7 +59,7 @@ const NB_MODULES = [
   NbTooltipModule,
 
   MatSliderModule,
-  MatButtonToggleModule
+  MatButtonToggleModule,
 ];
 const COMPONENTS = [
   HeaderComponent,

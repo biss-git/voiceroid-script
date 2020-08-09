@@ -6,5 +6,5 @@ export class ScriptProject {
   phraseDictionary: FileInfo;
   voicePreset: FileInfo;
   settings: FileInfo;
-  fileLinks : FileInfo[];
+  fileLinks: FileInfo[];
 }

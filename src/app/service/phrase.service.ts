@@ -227,7 +227,7 @@ export class PhraseService {
       else if ( m1 === '(' ){
         let val = 1;
         const array = phrase.match(/[0-9]+\.?[0-9]*/g);
-        if(array){
+        if (array){
           val = parseFloat(array[0]);
         }
         switch ( phrase.substring(0, 4) ) {

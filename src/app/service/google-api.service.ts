@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 import { async } from '@angular/core/testing';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GoogleApiService {
 
@@ -16,8 +16,8 @@ export class GoogleApiService {
     gapi.load('client:auth2', () => {
       gapi.client.init({
         clientId: environment.googleAPIclientID,
-        discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-        scope: 'https://www.googleapis.com/auth/drive.file'
+        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+        scope: 'https://www.googleapis.com/auth/drive.file',
       }).then( () => {
         // Listen for sign-in state changes.
         gapi.auth2.getAuthInstance().isSignedIn.listen((s) => this.updateSigninStatus(s));
@@ -39,7 +39,7 @@ export class GoogleApiService {
   currentProject: GoogleFileInfo = undefined;
 
   projectExist(): boolean{
-    if(this.currentProject && this.currentProject.id != ''){
+    if (this.currentProject && this.currentProject.id != ''){
       return true;
     }
     return false;
@@ -48,8 +48,8 @@ export class GoogleApiService {
   isMyDriveProject(): boolean{
     let isMine = false;
     if (this.currentProject && this.currentProject.permissions && this.user && this.user.me){
-      this.currentProject.permissions.forEach( p =>{
-        if(p.id == this.user.permissionId){
+      this.currentProject.permissions.forEach( p => {
+        if (p.id == this.user.permissionId){
           isMine = true;
         }
       });
@@ -67,8 +67,8 @@ export class GoogleApiService {
   isShared(): boolean{
     let isShare = false;
     if (this.currentProject && this.currentProject.permissions){
-      this.currentProject.permissions.forEach( p =>{
-        if(p.type == 'anyone'){
+      this.currentProject.permissions.forEach( p => {
+        if (p.type == 'anyone'){
           isShare = true;
         }
       });
@@ -106,10 +106,10 @@ export class GoogleApiService {
   private async getUserInfo(): Promise<void> {
     console.log('getUser');
     const params = {
-      fields: "user",
+      fields: 'user',
     };
     const url = 'https://www.googleapis.com/drive/v3/about';
-    await this.http.get(url, {'headers': this.getHeader(),params}).toPromise().then((data)=>{
+    await this.http.get(url, {'headers': this.getHeader(), params}).toPromise().then((data) => {
       this.user = data['user'];
       this.userService.changeUser(this.user);
     })
@@ -133,27 +133,27 @@ export class GoogleApiService {
     gapi.auth2.getAuthInstance().signOut();
   }
 
-  userExists():boolean{
+  userExists(): boolean{
     return this.token != null;
   }
 
   // Voiceroid Script フォルダの検索 / 作成
   async checkRootFolder(): Promise<void>{
-    if(!this.userExists){return;}
+    if (!this.userExists){return; }
     const params = {
-      q: "name = 'Voiceroid Script' and mimeType = 'application/vnd.google-apps.folder' and trashed = false and 'me' in owners",
+      q: 'name = \'Voiceroid Script\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false and \'me\' in owners',
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
-    await this.http.get(url ,{'headers': this.getHeader(), params}).toPromise().then(async (data)=>{
+    await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then(async (data) => {
       const files = data['files'];
-      if( files && files.length>0){
+      if ( files && files.length > 0){
         this.rootId = files[0].id;
       }
       else{
         this.rootId = '';
         await this.makeRootFolder();
       }
-      if(this.rootId == ''){
+      if (this.rootId == ''){
       }
     })
     .catch(error => console.log('Voiceroid Script フォルダの検索に失敗しました'));
@@ -161,14 +161,14 @@ export class GoogleApiService {
 
   // Voiceroid Script フォルダの作成
   private async makeRootFolder(): Promise<void>{
-    if(!this.userExists){return;}
+    if (!this.userExists){return; }
     const body = {
-      description: "Main Folder for Voiceroid Script",
-      mimeType: "application/vnd.google-apps.folder",
-      name: "Voiceroid Script",
+      description: 'Main Folder for Voiceroid Script',
+      mimeType: 'application/vnd.google-apps.folder',
+      name: 'Voiceroid Script',
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
-    this.http.post(url , body,{'headers': this.getHeader()}).toPromise().then((data)=>{
+    this.http.post(url , body, {'headers': this.getHeader()}).toPromise().then((data) => {
       this.rootId = data['id'];
     })
     .catch(error => console.log('Voiceroid Script フォルダの作成に失敗しました'));
@@ -176,17 +176,17 @@ export class GoogleApiService {
 
   // Projectsフォルダの検索 / 作成
   async checkProjectsFolder(): Promise<void>{
-    if(!this.userExists){return;}
-    if(this.rootId == ''){
+    if (!this.userExists){return; }
+    if (this.rootId == ''){
       await this.checkRootFolder();
     }
     const params = {
-      q: "name = 'Projects' and mimeType = 'application/vnd.google-apps.folder' and trashed = false and '" + this.rootId + "' in parents",
+      q: 'name = \'Projects\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false and \'' + this.rootId + '\' in parents',
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
-    await this.http.get(url ,{'headers': this.getHeader(), params}).toPromise().then(async(data)=>{
+    await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then(async(data) => {
       const files = data['files'];
-      if( files && files.length>0){
+      if ( files && files.length > 0){
         this.projectsId = files[0].id;
       }
       else{
@@ -199,18 +199,18 @@ export class GoogleApiService {
 
   // Projectsフォルダの作成
   private async makeProjectsFolder(): Promise<void>{
-    if(!this.userExists){return;}
-    if(this.rootId == ''){
+    if (!this.userExists){return; }
+    if (this.rootId == ''){
       await this.checkRootFolder();
     }
     const body = {
-      description: "Projects Folder for Voiceroid Script",
-      mimeType: "application/vnd.google-apps.folder",
-      name: "Projects",
+      description: 'Projects Folder for Voiceroid Script',
+      mimeType: 'application/vnd.google-apps.folder',
+      name: 'Projects',
       parents: [this.rootId],
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
-    await this.http.post(url , body,{'headers': this.getHeader()}).toPromise().then((data)=>{
+    await this.http.post(url , body, {'headers': this.getHeader()}).toPromise().then((data) => {
       this.projectsId = data['id'];
     })
     .catch(error => console.log('Projects フォルダの作成に失敗しました'));
@@ -218,18 +218,18 @@ export class GoogleApiService {
 
   // プロジェクトの作成
   async makeNewProject(file: FileInfo): Promise<void>{
-    if(!this.userExists){return;}
-    if(this.projectsId == ''){
+    if (!this.userExists){return; }
+    if (this.projectsId == ''){
       await this.checkProjectsFolder();
     }
     const body = {
-      description: "Project File of Voiceroid Script",
-      mimeType: "application/json",
+      description: 'Project File of Voiceroid Script',
+      mimeType: 'application/json',
       name: file.name,
       parents: [this.projectsId],
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
-    await this.http.post(url , body,{'headers': this.getHeader()}).toPromise().then(async (data)=>{
+    await this.http.post(url , body, {'headers': this.getHeader()}).toPromise().then(async (data) => {
       await this.updateCurrentProject(file, data['id']);
     })
     .catch(error => alert('プロジェクトの作成に失敗しました'));
@@ -237,21 +237,21 @@ export class GoogleApiService {
 
   // 現在のプロジェクトを更新
   async updateCurrentProject(file: FileInfo, id: string = ''): Promise<void>{
-    if(!this.userExists){return;}
-    if(id == ''){id = this.currentProject.id}
-    if(id == ''){return;}
+    if (!this.userExists){return; }
+    if (id == ''){id = this.currentProject.id; }
+    if (id == ''){return; }
     const params = {
-      uploadType: "media",
+      uploadType: 'media',
     };
     const url = 'https://www.googleapis.com/upload/drive/v3/files/' + id;
-    await this.http.patch(url , file.content,{'headers': this.getHeader(),params}).toPromise().then((data)=>{
-      const newFile:GoogleFileInfo = {
+    await this.http.patch(url , file.content, {'headers': this.getHeader(), params}).toPromise().then((data) => {
+      const newFile: GoogleFileInfo = {
         id: id,
         name: file.name,
         extension: file.extension,
         content: file.content,
         permissions: undefined,
-      }
+      };
       this.currentProject = newFile;
     })
     .catch(error => alert('プロジェクトの更新に失敗しました'));
@@ -260,21 +260,21 @@ export class GoogleApiService {
 
   // プロジェクトの一覧を取得
   async getProjectList(): Promise<GoogleFileInfo[]>{
-    if(!this.userExists){return;}
-    if(this.projectsId == ''){
+    if (!this.userExists){return; }
+    if (this.projectsId == ''){
       await this.checkProjectsFolder();
     }
     const newProjectList: GoogleFileInfo[] = [];
     const params = {
-      q: "name contains '.voisproj' and mimeType = 'application/json' and trashed = false and '" + this.projectsId + "' in parents",
+      q: 'name contains \'.voisproj\' and mimeType = \'application/json\' and trashed = false and \'' + this.projectsId + '\' in parents',
       pageSize: '1000',
       fields: 'files(name, id, modifiedTime, shared)',
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
-    await this.http.get(url ,{'headers': this.getHeader(), params}).toPromise().then((data)=>{
+    await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then((data) => {
       const files = data['files'];
       console.log(files);
-      if( files && files.length>0){
+      if ( files && files.length > 0){
         files.forEach(f => {
           newProjectList.push({
             id: f.id,
@@ -282,8 +282,8 @@ export class GoogleApiService {
             extension: '.voisproj',
             content: '',
             permissions: undefined,
-            modifiedTime: f.modifiedTime.slice(0,10),
-            shared: f.shared? '公開': '非公開',
+            modifiedTime: f.modifiedTime.slice(0, 10),
+            shared: f.shared ? '公開' : '非公開',
           });
         });
       }
@@ -294,14 +294,14 @@ export class GoogleApiService {
 
   // プロジェクトを取得
   async getProject(id: string): Promise<GoogleFileInfo>{
-    if(!this.userExists){return;}
-    const newProject: GoogleFileInfo={id:id, name: '', extension: '', content: '', permissions: undefined};
+    if (!this.userExists){return; }
+    const newProject: GoogleFileInfo = {id: id, name: '', extension: '', content: '', permissions: undefined};
     const params = {
-      fields: 'kind, name, mimeType, description'
+      fields: 'kind, name, mimeType, description',
     };
     const url = 'https://www.googleapis.com/drive/v3/files/' + id;
-    await this.http.get(url ,{'headers': this.getHeader(), params}).toPromise().then(async(data)=>{
-      if(data['mimeType'] != 'application/json'){return;}
+    await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then(async(data) => {
+      if (data['mimeType'] != 'application/json'){return; }
       newProject.name = data['name'];
       newProject.extension = '.voisproj'; // 要確認
       const responseType = 'json';  // 普通はjson
@@ -309,7 +309,7 @@ export class GoogleApiService {
         alt: 'media',
       };
       const url = 'https://www.googleapis.com/drive/v3/files/' + id;
-      await this.http.get(url ,{'headers': this.getHeader(), responseType, params}).toPromise().then((data) =>{
+      await this.http.get(url , {'headers': this.getHeader(), responseType, params}).toPromise().then((data) => {
         newProject.content = data;
       })
       .catch(error => alert('プロジェクトデータの取得に失敗しました'));
@@ -322,13 +322,13 @@ export class GoogleApiService {
 
   // 現在のプロジェクトの権限リストを取得
   async getPermission(): Promise<void>{
-    if(!this.userExists){return;}
-    if(!this.currentProject || this.currentProject.id == ''){return;}
+    if (!this.userExists){return; }
+    if (!this.currentProject || this.currentProject.id == ''){return; }
     const params = {
-      fields: 'permissions'
+      fields: 'permissions',
     };
     const url = 'https://www.googleapis.com/drive/v3/files/' + this.currentProject.id + '/permissions';
-    await this.http.get(url ,{'headers': this.getHeader(), params}).toPromise().then((data)=>{
+    await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then((data) => {
       const dataList = data['permissions'];
       const permissions: PermissionInfo[] = [];
       dataList.forEach(permission => {
@@ -346,20 +346,20 @@ export class GoogleApiService {
 
   // プロジェクトの公開
   async makeReleasePermission(): Promise<void>{
-    if(!this.userExists){return;}
-    if(!this.currentProject || this.currentProject.id == ''){return;}
-    if(this.currentProject.permissions == null){
+    if (!this.userExists){return; }
+    if (!this.currentProject || this.currentProject.id == ''){return; }
+    if (this.currentProject.permissions == null){
       await this.getPermission();
     }
-    this.currentProject.permissions.forEach( p =>{
-      if(p.type == 'anyone'){return;}
+    this.currentProject.permissions.forEach( p => {
+      if (p.type == 'anyone'){return; }
     });
     const body = {
       role: 'reader',
       type: 'anyone',
     };
     const url = 'https://www.googleapis.com/drive/v3/files/' + this.currentProject.id + '/permissions';
-    await this.http.post(url, body, {'headers': this.getHeader()}).toPromise().then((data)=>{
+    await this.http.post(url, body, {'headers': this.getHeader()}).toPromise().then((data) => {
     })
     .catch(error => alert('プロジェクトの公開に失敗しました'));
     await this.getPermission();
@@ -367,16 +367,16 @@ export class GoogleApiService {
 
   // プロジェクトの非公開
   async deleteReleasePermission(): Promise<void>{
-    if(!this.userExists){return;}
-    if(!this.currentProject || this.currentProject.id == ''){return;}
-    if(this.currentProject.permissions == null){
+    if (!this.userExists){return; }
+    if (!this.currentProject || this.currentProject.id == ''){return; }
+    if (this.currentProject.permissions == null){
       await this.getPermission();
     }
-    for(let i=0; i<this.currentProject.permissions.length; i++){
+    for (let i = 0; i < this.currentProject.permissions.length; i++){
       const p = this.currentProject.permissions[i];
-      if(p.type == 'anyone'){
+      if (p.type == 'anyone'){
         const url = 'https://www.googleapis.com/drive/v3/files/' + this.currentProject.id + '/permissions/' + p.id;
-        await this.http.delete(url, {'headers': this.getHeader()}).toPromise().then((data)=>{
+        await this.http.delete(url, {'headers': this.getHeader()}).toPromise().then((data) => {
         })
         .catch(error => alert('プロジェクトの非公開に失敗しました'));
       }
@@ -388,17 +388,17 @@ export class GoogleApiService {
 
   // Link Filesフォルダの検索 / 作成
   async checkLinkFilesFolder(): Promise<void>{
-    if(!this.userExists){return;}
-    if(this.rootId == ''){
+    if (!this.userExists){return; }
+    if (this.rootId == ''){
       await this.checkRootFolder();
     }
     const params = {
-      q: "name = 'Link Files' and mimeType = 'application/vnd.google-apps.folder' and trashed = false and '" + this.rootId + "' in parents",
+      q: 'name = \'Link Files\' and mimeType = \'application/vnd.google-apps.folder\' and trashed = false and \'' + this.rootId + '\' in parents',
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
-    await this.http.get(url ,{'headers': this.getHeader(), params}).toPromise().then(async (data)=>{
+    await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then(async (data) => {
       const files = data['files'];
-      if( files && files.length>0){
+      if ( files && files.length > 0){
         this.linkFilesId = files[0].id;
       }
       else{
@@ -411,18 +411,18 @@ export class GoogleApiService {
 
   // Link Filesフォルダの作成
   private async makeLinkFilesFolder(): Promise<void>{
-    if(!this.userExists){return;}
-    if(this.rootId == ''){
+    if (!this.userExists){return; }
+    if (this.rootId == ''){
       await this.checkRootFolder();
     }
     const body = {
-      description: "Link Files Folder for Voiceroid Script",
-      mimeType: "application/vnd.google-apps.folder",
-      name: "Link Files",
+      description: 'Link Files Folder for Voiceroid Script',
+      mimeType: 'application/vnd.google-apps.folder',
+      name: 'Link Files',
       parents: [this.rootId],
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
-    await this.http.post(url , body,{'headers': this.getHeader()}).toPromise().then((data)=>{
+    await this.http.post(url , body, {'headers': this.getHeader()}).toPromise().then((data) => {
       this.linkFilesId = data['id'];
     })
     .catch(error => console.log('Link Files フォルダの作成に失敗しました'));
@@ -431,18 +431,18 @@ export class GoogleApiService {
 
   // ファイルの作成
   async makeNewLinkFile(file: FileInfo): Promise<void>{
-    if(!this.userExists){return;}
-    if(this.linkFilesId == ''){
+    if (!this.userExists){return; }
+    if (this.linkFilesId == ''){
       await this.checkLinkFilesFolder();
     }
     const body = {
-      description: "Link File of Voiceroid Script",
+      description: 'Link File of Voiceroid Script',
       //mimeType: "text/plain",
       name: file.name,
       parents: [this.linkFilesId],
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
-    return await this.http.post(url , body,{'headers': this.getHeader()}).toPromise().then(async (data)=>{
+    return await this.http.post(url , body, {'headers': this.getHeader()}).toPromise().then(async (data) => {
       await this.updateLinkFiles(file, data['id']);
       await this.makeLinkFilesPermission(data['id']);
       file.content = 'https://drive.google.com/uc?id=' + data['id'];
@@ -452,25 +452,25 @@ export class GoogleApiService {
 
   // 現在のファイルを更新
   private async updateLinkFiles(file: FileInfo, id: string): Promise<void>{
-    if(!this.userExists){return;}
+    if (!this.userExists){return; }
     const params = {
-      uploadType: "media",
+      uploadType: 'media',
     };
     const url = 'https://www.googleapis.com/upload/drive/v3/files/' + id;
-    await this.http.patch(url , file.content,{'headers': this.getHeader(),params}).toPromise().then((data)=>{
+    await this.http.patch(url , file.content, {'headers': this.getHeader(), params}).toPromise().then((data) => {
     })
     .catch(error => alert('ファイルの更新に失敗しました'));
   }
 
   // ファイルの公開
   private async makeLinkFilesPermission(id: string): Promise<void>{
-    if(!this.userExists){return;}
+    if (!this.userExists){return; }
     const body = {
       role: 'reader',
       type: 'anyone',
     };
     const url = 'https://www.googleapis.com/drive/v3/files/' + id + '/permissions';
-    await this.http.post(url, body, {'headers': this.getHeader()}).toPromise().then((data)=>{
+    await this.http.post(url, body, {'headers': this.getHeader()}).toPromise().then((data) => {
     })
     .catch(error => alert('ファイルの公開に失敗しました'));
   }

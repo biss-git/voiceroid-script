@@ -1,12 +1,12 @@
 import { Component, OnInit, Output, EventEmitter, Input, OnDestroy } from '@angular/core';
-import { NbThemeService, NbTable } from '@nebular/theme';
+import { NbThemeService } from '@nebular/theme';
 import { FileloadService } from '../../../service/fileload.service';
 import { FileInfo } from '../../../@core/data/file-info';
 
 @Component({
   selector: 'ngx-drop-area',
   templateUrl: './drop-area.component.html',
-  styleUrls: ['./drop-area.component.scss']
+  styleUrls: ['./drop-area.component.scss'],
 })
 export class DropAreaComponent implements OnInit, OnDestroy {
 
@@ -19,7 +19,7 @@ export class DropAreaComponent implements OnInit, OnDestroy {
   encoding: string = '';
 
 
-  private files:FileInfo[] = [];
+  private files: FileInfo[] = [];
 
   constructor(private theme: NbThemeService,
               private fileload: FileloadService) { }
@@ -47,8 +47,8 @@ export class DropAreaComponent implements OnInit, OnDestroy {
   onChangeInput(event) {
     if (event.target.files.length > 0){
       this.files = [];
-      for(let i=0; i<event.target.files.length; i++){
-        this.readFile(event.target.files[i], i==event.target.files.length-1);
+      for (let i = 0; i < event.target.files.length; i++){
+        this.readFile(event.target.files[i], i == event.target.files.length - 1);
       }
     }
   }
@@ -59,8 +59,8 @@ export class DropAreaComponent implements OnInit, OnDestroy {
     e.preventDefault();
     if (e.dataTransfer.files.length > 0){
       this.files = [];
-      for(let i=0; i<e.dataTransfer.files.length; i++){
-        this.readFile(e.dataTransfer.files[i], i==e.dataTransfer.files.length-1);
+      for (let i = 0; i < e.dataTransfer.files.length; i++){
+        this.readFile(e.dataTransfer.files[i], i == e.dataTransfer.files.length - 1);
       }
     }
     this.dropAreaColor = this.bgColor;
@@ -79,12 +79,12 @@ export class DropAreaComponent implements OnInit, OnDestroy {
 
 
 
-  private readFile(file, isFinal:boolean){
+  private readFile(file, isFinal: boolean){
     let extention: string = this.fileload.getExtension(file.name);
     if (this.type == 'bin'){
       extention = '';
     }
-    switch(extention){
+    switch (extention){
       case '.txt':
       case '.pdic':
       case '.vcha':
@@ -93,12 +93,12 @@ export class DropAreaComponent implements OnInit, OnDestroy {
       case '.settings':
       case '.voisproj':
         let isSJIS = false;
-        if(extention == '.pdic'){
+        if (extention == '.pdic'){
           isSJIS = true;
         }
-        if(extention == '.txt'){
-          isSJIS = (this.encoding == "" && this.type=="SJIS") ||
-                   (this.encoding == 'sjis')
+        if (extention == '.txt'){
+          isSJIS = (this.encoding == '' && this.type == 'SJIS') ||
+                   (this.encoding == 'sjis');
         }
         this.fileload.fileToText(file, isSJIS)
         .then(text => {
@@ -106,9 +106,9 @@ export class DropAreaComponent implements OnInit, OnDestroy {
             name: file.name,
             extension: this.fileload.getExtension(file.name),
             content: text,
-          }
+          };
           this.files.push(fileInfo);
-          if(isFinal){
+          if (isFinal){
             setTimeout(() => {
               this.fileLoad.emit(this.files);
             }, 100);
@@ -123,9 +123,9 @@ export class DropAreaComponent implements OnInit, OnDestroy {
             name: file.name,
             extension: this.fileload.getExtension(file.name),
             content: bitArray,
-          }
+          };
           this.files.push(fileInfo);
-          if(isFinal){
+          if (isFinal){
             this.fileLoad.emit(this.files);
           }
         })

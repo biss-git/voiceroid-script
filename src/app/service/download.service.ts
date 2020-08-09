@@ -60,7 +60,7 @@ export class DownloadService {
    */
   downloadText(text: string, filename: string, withDate: boolean, extension: string, isSJIS: boolean = false){
     let blob: Blob;
-    if(isSJIS){
+    if (isSJIS){
       blob = new Blob([this.toShiftJIS(text)], {type: 'text/plain'});
     }else{
       blob  = new Blob([text], {type: 'text/plain'});
@@ -73,7 +73,7 @@ export class DownloadService {
 
   downloadFile(file: FileInfo){
     let blob: Blob;
-    if(file.extension == ".pdic"){
+    if (file.extension == '.pdic'){
       blob = new Blob([this.toShiftJIS(file.content)], {type: 'text/plain'});
     }
     else{
@@ -87,18 +87,18 @@ export class DownloadService {
 
 
   toShiftJIS(utf8String: string) {
-    const detected = Encoding.detect(utf8String)
-    const unicodeList = []
+    const detected = Encoding.detect(utf8String);
+    const unicodeList = [];
 
     for (let i = 0; i < utf8String.length; i += 1) {
-        unicodeList.push(utf8String.charCodeAt(i))
+        unicodeList.push(utf8String.charCodeAt(i));
     }
 
     const sjisArray = Encoding.convert(unicodeList, {
         to: 'SJIS',
-        from: detected
-    })
-    return new Uint8Array(sjisArray)
+        from: detected,
+    });
+    return new Uint8Array(sjisArray);
 }
 
 }

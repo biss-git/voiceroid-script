@@ -1,6 +1,6 @@
-import { Component, AfterViewInit, OnDestroy, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, OnInit } from '@angular/core';
 import EditorJS from '@editorjs/editorjs';
-import { NbThemeService, NbTable, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition, NbDialogService } from '@nebular/theme';
+import { NbThemeService, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition, NbDialogService } from '@nebular/theme';
 import { FileloadService } from '../../../service/fileload.service';
 import { DownloadService } from '../../../service/download.service';
 import { CharactorsService } from '../../../service/charactors.service';
@@ -38,12 +38,12 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   isBusy = false;
   ngOnInit(): void {
     setTimeout(() => {
-      if(this.charaLoad){
+      if (this.charaLoad){
         this.characters = this.charaService.characters;
         VoiceroidEditorPlugin.characters = this.characters;
       }
-      if(this.scriptLoad){
-        if(this.charaService.tempData){
+      if (this.scriptLoad){
+        if (this.charaService.tempData){
           this.config.data = this.charaService.tempData;
         }
         this.editor = new EditorJS(this.config);
@@ -51,12 +51,12 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     }, 10);
 
     this.matrixParamsSubscription = this.activatedRoute.paramMap.subscribe((params: ParamMap) => {
-      if(params.has('number')){
+      if (params.has('number')){
         const characters = this.projectService.project.characters;
         this.charaLoad = false;
         this.scriptLoad = false;
         this.isBusy = true;
-        if(characters){
+        if (characters){
           this.onFileLoad([characters]);
         }
         else{
@@ -66,11 +66,11 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         const number = parseInt( params.get('number'), 10);
         const scripts = this.projectService.project.scripts;
         setTimeout(() => {
-          if(scripts && number < scripts.length){
+          if (scripts && number < scripts.length){
             this.onFileLoad([scripts[number]]);
           }
           else{
-            if(this.charaService.tempData){
+            if (this.charaService.tempData){
               this.config.data = this.charaService.tempData;
             }
             this.editor = new EditorJS(this.config);
@@ -119,11 +119,11 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     pager: {
       perPage: 50,
     },
-    actions:{
+    actions: {
       //add: false,
       //edit: false,
       //delete: false,
-      position:'right',
+      position: 'right',
       //select: true,
     },
     add: {
@@ -146,12 +146,12 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
       show: {
         title: '表示',
         type: 'html',
-        valuePrepareFunction: (value,value2) => {
+        valuePrepareFunction: (value, value2) => {
           const index = this.characters.indexOf(value2);
           const id = 'showTableItem' + index;
           setTimeout(() => {
             const element = document.getElementById(id);
-            if(element){
+            if (element){
               element.addEventListener('change', (e) => {
                 this.characters[index].show = event.target['checked'];
               });
@@ -160,7 +160,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
           const checked = value ? 'checked' : '';
           return this.sanitizer.bypassSecurityTrustHtml(
             //'<input id="' + id + '" type="checkbox" ' + checked + ' style="color: #f00">表示</input>'
-            '<div class="sample3Area"><input id="' + id + '" class="sample3AreaChild" type="checkbox" ' + checked + '><label style="cursor: pointer;" for="' + id + '"><span></span></label></div>'
+            '<div class="sample3Area"><input id="' + id + '" class="sample3AreaChild" type="checkbox" ' + checked + '><label style="cursor: pointer;" for="' + id + '"><span></span></label></div>',
           );
         },
         filter: false,
@@ -173,7 +173,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         type: 'html',
         valuePrepareFunction: (value) => {
           return this.sanitizer.bypassSecurityTrustHtml(
-            '<h5>' + value + '</h5>'
+            '<h5>' + value + '</h5>',
           );
         },
         filter: false,
@@ -184,18 +184,18 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
       src: {
         title: '画像',
         type: 'html',
-        valuePrepareFunction: (value,value2,value3) => {
+        valuePrepareFunction: (value, value2, value3) => {
           const number = value3.dataSet.data.indexOf(value2);
           const id = 'imageSource' + number;
           setTimeout(() => {
             const element = document.getElementById(id);
-            if(element){
+            if (element){
               element.addEventListener('click', (e) => {
                 this.charaService.selectedChara = this.charaService.characters[number];
                 this.dialogService.open(ImageSourceDialogComponent)
                 .onClose.subscribe(
-                  url =>{
-                    if(url){
+                  url => {
+                    if (url){
                       this.charaService.selectedChara.src = url;
                       this.refreshTable();
                     }
@@ -204,7 +204,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
             }
           }, 30);
           return this.sanitizer.bypassSecurityTrustHtml(
-            '<img id="' + id  + '" src="' + value2.src + '" style="cursor: pointer;" alt="画像" width="50px" height="50px"/>'
+            '<img id="' + id  + '" src="' + value2.src + '" style="cursor: pointer;" alt="画像" width="50px" height="50px"/>',
             );
         },
         filter: false,
@@ -217,20 +217,20 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         type: 'string',
         filter: false,
         sort: false,
-        width: "70%",
+        width: '70%',
       },
       up: {
         title: '',
         type: 'html',
-        valuePrepareFunction: (value,value2) => {
+        valuePrepareFunction: (value, value2) => {
           const index = this.characters.indexOf(value2);
           const id = 'upTableItem' + index;
           setTimeout(() => {
             const element = document.getElementById(id);
-            if(element){
+            if (element){
               element.addEventListener('click', (e) => {
-                if(index > 1){
-                  const distNum = index-1;
+                if (index > 1){
+                  const distNum = index - 1;
                   const temp = this.characters[distNum];
                   this.characters[distNum] = this.characters[index];
                   this.characters[index] = temp;
@@ -240,7 +240,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
             }
           }, 30);
           return this.sanitizer.bypassSecurityTrustHtml(
-            '<svg id="' + id + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px; " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="arrow-upward"><rect width="24" height="24" transform="rotate(180 12 12)" opacity="0"/><path d="M5.23 10.64a1 1 0 0 0 1.41.13L11 7.14V19a1 1 0 0 0 2 0V7.14l4.36 3.63a1 1 0 1 0 1.28-1.54l-6-5-.15-.09-.13-.07a1 1 0 0 0-.72 0l-.13.07-.15.09-6 5a1 1 0 0 0-.13 1.41z"/></g></g></svg>'
+            '<svg id="' + id + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px; " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="arrow-upward"><rect width="24" height="24" transform="rotate(180 12 12)" opacity="0"/><path d="M5.23 10.64a1 1 0 0 0 1.41.13L11 7.14V19a1 1 0 0 0 2 0V7.14l4.36 3.63a1 1 0 1 0 1.28-1.54l-6-5-.15-.09-.13-.07a1 1 0 0 0-.72 0l-.13.07-.15.09-6 5a1 1 0 0 0-.13 1.41z"/></g></g></svg>',
             );
         },
         filter: false,
@@ -251,15 +251,15 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
       down: {
         title: '',
         type: 'html',
-        valuePrepareFunction: (value,value2) => {
+        valuePrepareFunction: (value, value2) => {
           const index = this.characters.indexOf(value2);
           const id = 'downTableItem' + index;
           setTimeout(() => {
             const element = document.getElementById(id);
-            if(element){
+            if (element){
               element.addEventListener('click', (e) => {
-              if(index > 0 && index<this.characters.length-1){
-                const distNum = index+1;
+              if (index > 0 && index < this.characters.length - 1){
+                const distNum = index + 1;
                 const temp = this.characters[distNum];
                 this.characters[distNum] = this.characters[index];
                 this.characters[index] = temp;
@@ -269,7 +269,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
           }
         }, 30);
           return this.sanitizer.bypassSecurityTrustHtml(
-            '<svg id="' + id + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="arrow-downward"><rect width="24" height="24" opacity="0"/><path d="M18.77 13.36a1 1 0 0 0-1.41-.13L13 16.86V5a1 1 0 0 0-2 0v11.86l-4.36-3.63a1 1 0 1 0-1.28 1.54l6 5 .15.09.13.07a1 1 0 0 0 .72 0l.13-.07.15-.09 6-5a1 1 0 0 0 .13-1.41z"/></g></g></svg>'
+            '<svg id="' + id + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="arrow-downward"><rect width="24" height="24" opacity="0"/><path d="M18.77 13.36a1 1 0 0 0-1.41-.13L13 16.86V5a1 1 0 0 0-2 0v11.86l-4.36-3.63a1 1 0 1 0-1.28 1.54l6 5 .15.09.13.07a1 1 0 0 0 .72 0l.13-.07.15-.09 6-5a1 1 0 0 0 .13-1.41z"/></g></g></svg>',
             );
         },
         filter: false,
@@ -288,7 +288,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   reNumbering(){
     const changeTable: number[] = [];
 
-    for(let i = 0; i < this.characters.length; i++){
+    for (let i = 0; i < this.characters.length; i++){
       changeTable.push(this.characters[i].id);
       this.characters[i].id = i;
       this.characters[i].isNull = false;
@@ -317,7 +317,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   ngOnDestroy(): void {
     this.themeSubscription.unsubscribe();
     this.matrixParamsSubscription.unsubscribe();
-    if(this.editor){
+    if (this.editor){
       this.editor.save().then(
         data => {
           this.charaService.tempData = data as any;
@@ -342,13 +342,13 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
       this.editor.save().then(
         data => {
 
-          if(changeTable){
-            let table: number [] = [];
-            for(let i=0; i<changeTable.length; i++){
+          if (changeTable){
+            const table: number [] = [];
+            for (let i = 0; i < changeTable.length; i++){
               table.push(changeTable.indexOf(i));
             }
             data.blocks.forEach(block => {
-              if(block.data['id'] < table.length){
+              if (block.data['id'] < table.length){
                 block.data['id'] = table[block.data['id']];
               }
             });
@@ -367,21 +367,21 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   checkCharaBlocks(blocks: VoisBlock[]){
-    blocks.forEach( b =>{
+    blocks.forEach( b => {
       const text = b.data.text;
-      if(text.includes("＞")){
-        const pos = text.indexOf("＞");
+      if (text.includes('＞')){
+        const pos = text.indexOf('＞');
         const name = text.slice(0, pos);
         const index = this.characters.findIndex(c => c.name == name);
-        if(index >= 0){
+        if (index >= 0){
           b.data.id = this.characters[index].id;
           b.data.text = text.slice(pos + 1);
         }
       }
-      if(b.data.id == 0 && b.data.name){
+      if (b.data.id == 0 && b.data.name){
         this.characters.forEach(c => {
           const name = c.name.replace(' ', '_');
-          if(b.data.name.includes(name) || b.data.name.includes(c.name)){
+          if (b.data.name.includes(name) || b.data.name.includes(c.name)){
             b.data.id = c.id;
           }
         });
@@ -392,16 +392,16 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   async onFileLoad(files: FileInfo[]){
     let data;
 
-    if(files.length==1){
+    if (files.length == 1){
       if (files[0].extension == '.vois'){
         data = JSON.parse(files[0].content);
         this.showToast('primary', files[0].name, '');
       }
-      else if(files[0].extension == '.vcha'){
+      else if (files[0].extension == '.vcha'){
         this.charaService.characters = JSON.parse(files[0].content);
         this.characters = this.charaService.characters;
         this.refresh();
-        if(!this.isBusy){
+        if (!this.isBusy){
           setTimeout(() => {
             const target = document.getElementById('characterList');
             target.scrollIntoView();
@@ -410,10 +410,10 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         this.showToast('primary', files[0].name, '');
         return;
       }
-      else if(files[0].extension == '.txt'){
+      else if (files[0].extension == '.txt'){
         const blocks = this.TabTextToBlocks(files[0].content);
         this.checkCharaBlocks(blocks);
-        data = await this.addBlocks(blocks);;
+        data = await this.addBlocks(blocks);
         this.showToast('primary', files[0].name, '');
       }
       else{
@@ -422,7 +422,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
       }
     }
     else{
-      files = files.sort((a,b) => a.name.localeCompare(b.name)).filter( f => (f.extension=='.txt'));
+      files = files.sort((a, b) => a.name.localeCompare(b.name)).filter( f => (f.extension == '.txt'));
       const blocks = this.TextFilesToBlocks(files);
       this.checkCharaBlocks(blocks);
       data = await this.addBlocks(blocks);
@@ -430,7 +430,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     this.config.data = data;
-    if(this.editor){
+    if (this.editor){
       this.editor.destroy();
     }
     this.editor = new EditorJS(this.config);
@@ -442,7 +442,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     const lines = text.split(/\r\n|\r|\n/);
     lines.forEach((line) => {
       let id = 0;
-      if( line.indexOf('\t') === 0 ){
+      if ( line.indexOf('\t') === 0 ){
         const tabs = line.match(/\t+/);
         id = tabs[0].length;
         line = line.replace(/\t+/, '');
@@ -462,13 +462,13 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   private TextFilesToBlocks(files: FileInfo[]): VoisBlock[]{
     const blocks = [];
     files.forEach((f) => {
-      let id = 0;
+      const id = 0;
       blocks.push({
         'type': 'paragraph',
         'data': {
           'id': id,
           'text': f.content as string,
-          'name': f.name
+          'name': f.name,
         },
       } as VoisBlock);
     });
@@ -476,7 +476,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   private async addBlocks(blocks: VoisBlock[]): Promise<{blocks: VoisBlock[]}>{
-    let newData = {blocks: []};
+    const newData = {blocks: []};
 
     await this.editor.save().then(
       data => {
@@ -486,7 +486,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
 
     blocks.forEach( b => {
       newData.blocks.push(b);
-    })
+    });
 
     return newData;
   }
@@ -535,7 +535,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   }
   private showAllCharacters(){
     this.characters.forEach( (c) => {
-      if(c.name){
+      if (c.name){
         c.show = true;
       }
     });
@@ -543,7 +543,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   }
   private hideAllCharacters(){
     this.characters.forEach( (c) => {
-      if(c.name){
+      if (c.name){
         c.show = false;
       }
     });
@@ -552,7 +552,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
 
   // キャラクターを追加
   onCreateConfirm(event): void {
-    if(!event.newData.id || event.newData.id==0){
+    if (!event.newData.id || event.newData.id == 0){
       event.newData.id = this.characters.length;
     }
     event.newData.show = true;
@@ -561,14 +561,14 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     setTimeout(() => {
       this.characters = event.source.data;
       const temp = this.characters.shift();
-      this.characters.splice(1,0,temp);
+      this.characters.splice(1, 0, temp);
       this.refreshTable();
     }, 100);
   }
 
   // キャラクターを編集
   onEditConfirm(event): void {
-    if(event.newData.id == 0){
+    if (event.newData.id == 0){
       event.newData.src = 'assets/images/null.png';
     }
     event.confirm.resolve(event.newData);
@@ -576,7 +576,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
 
   // キャラクターを削除
   onDeleteConfirm(event): void {
-    if(event.data.id == 0){
+    if (event.data.id == 0){
       window.alert('このキャラクターは削除できません。');
       event.confirm.reject(event.data);
       return;
@@ -611,7 +611,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
 
           // 表示・非表示の判定
           const id = block.data['id'];
-          const chara = this.characters.find(c => c.id==id);
+          const chara = this.characters.find(c => c.id == id);
           if (id == null || chara == null){
             // id が不明な場合は何もしない
             return;
@@ -629,12 +629,12 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
           let line = '';
           if (!chara.isNull){
             name = chara.name;
-            if(this.charaNameType == 'use' && name){
+            if (this.charaNameType == 'use' && name){
               line = name + '＞';
             }
           }
-          if(this.charaNameType == 'all' && (name || chara.name)){
-            if(chara.name){
+          if (this.charaNameType == 'all' && (name || chara.name)){
+            if (chara.name){
               name = chara.name;
             }
             line = name + '＞';
@@ -642,11 +642,11 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
           line += block.data['text'];
 
           // 区切り文字を付ける
-          if(this.breakBar){
-            if(this.breakType == 'enter'){
-              line = line.replace(/\n/g,'/\n') + '/';
+          if (this.breakBar){
+            if (this.breakType == 'enter'){
+              line = line.replace(/\n/g, '/\n') + '/';
             }
-            else if(this.breakType == 'block'){
+            else if (this.breakType == 'block'){
               line = line + '/';
             }
           }
@@ -654,7 +654,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
           script += line + '\n';
         });
 
-        if(script.slice(-2) == '/\n'){
+        if (script.slice(-2) == '/\n'){
           script = script.slice(0, -2);
         }
         this.script = script;
@@ -667,7 +667,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     if (navigator.clipboard){
       navigator.clipboard.writeText(this.script).then(
         () => {
-          this.showToast('primary','クリップボードに共有リンクがコピーされました','');
+          this.showToast('primary', 'クリップボードに共有リンクがコピーされました', '');
         },
         () => {/* 失敗 */},
       );
@@ -716,7 +716,7 @@ class VoiceroidEditorPlugin {
   static textColor = '#0000ff';
 
   static characters: Character[] = [
-    { id: 0, show: true, name: '', src: '', isNull: true}
+    { id: 0, show: true, name: '', src: '', isNull: true},
   ];
 
 
@@ -744,8 +744,8 @@ class VoiceroidEditorPlugin {
       this.initText = '';
     }
     if (data.id){
-      for(let i=0; i<VoiceroidEditorPlugin.characters.length; i++){
-        if(VoiceroidEditorPlugin.characters[i].id == data.id){
+      for (let i = 0; i < VoiceroidEditorPlugin.characters.length; i++){
+        if (VoiceroidEditorPlugin.characters[i].id == data.id){
           this.initId = i;
           break;
         }
@@ -847,8 +847,8 @@ class VoiceroidEditorPlugin {
       // セルの先頭でbackspaceを押したときの処理
       const currentTextArea = currentBlock.getElementsByTagName('textarea')[0];
       let tempPosition = currentTextArea.textLength;
-      if(this.textInput.value && currentTextArea.value){
-        currentTextArea.value += "\n" + this.textInput.value;
+      if (this.textInput.value && currentTextArea.value){
+        currentTextArea.value += '\n' + this.textInput.value;
         tempPosition += 1;
       }
       setTimeout(() => {
@@ -884,15 +884,15 @@ class VoiceroidEditorPlugin {
         return;
       }
 
-      let newText= this.textInput.value.substr(this.textInput.selectionStart);
-      if( newText.indexOf('\n') === 0 ){
+      let newText = this.textInput.value.substr(this.textInput.selectionStart);
+      if ( newText.indexOf('\n') === 0 ){
         newText = newText.substr(1);
       }
       newBlock.getElementsByTagName('textarea')[0].value = newText;
 
-      let currentText = this.textInput.value.substr(0, this.textInput.selectionStart)
-      if((currentText.lastIndexOf('\n') + 1 === currentText.length)&&(1<=currentText.length)){
-        currentText = currentText.substr(0, currentText.length-1);
+      let currentText = this.textInput.value.substr(0, this.textInput.selectionStart);
+      if ((currentText.lastIndexOf('\n') + 1 === currentText.length) && (1 <= currentText.length)){
+        currentText = currentText.substr(0, currentText.length - 1);
       }
       this.textInput.value = currentText;
       setTimeout(() => {
@@ -916,9 +916,9 @@ class VoiceroidEditorPlugin {
     }
 
     // F2 で名称変更
-    if(e.key === 'F2'){
+    if (e.key === 'F2'){
       const result = window.prompt('ブロックのファイル名を入力', this.name);
-      if(result){
+      if (result){
         this.name = result;
         this.textInput.title = this.name;
       }
@@ -953,7 +953,7 @@ class VoiceroidEditorPlugin {
       const button = document.createElement('div');
 
       button.classList.add('cdx-settings-button');
-      const src = tune.src!='' ? tune.src : 'assets/images/null.png';
+      const src = tune.src != '' ? tune.src : 'assets/images/null.png';
       const img = '<img width="30" height="30" style="margin: 2px;" src="' + src + '" alt="画"></img>';
       button.innerHTML = img;
       wrapper.appendChild(button);
@@ -967,25 +967,25 @@ class VoiceroidEditorPlugin {
     return wrapper;
   }
 
-  private toggleTune(tune, isNew:boolean) {
+  private toggleTune(tune, isNew: boolean) {
     this.id = tune.id;
     let src = '';
-    if(tune.isNull){
+    if (tune.isNull){
       this.img.height = 10;
       src = 'assets/images/null.png';
       this.img.alt = '';
     }
     else{
       this.img.height = 50;
-      src =  VoiceroidEditorPlugin.characters.find(c => c.id==tune.id).src;
+      src =  VoiceroidEditorPlugin.characters.find(c => c.id == tune.id).src;
       this.img.title = VoiceroidEditorPlugin.characters[this.id].name;
       this.img.alt = tune.name;
     }
-    this.img.src = src!='' ? src : 'assets/images/null.png';
-    if(!this.textInput.value && VoiceroidEditorPlugin.tempText){
+    this.img.src = src != '' ? src : 'assets/images/null.png';
+    if (!this.textInput.value && VoiceroidEditorPlugin.tempText){
       this.textInput.value = VoiceroidEditorPlugin.tempText;
     }
-    if(!isNew){
+    if (!isNew){
       setTimeout(() => {
         this.textInput.selectionStart = this.textInput.value.length;
         this.textInput.selectionEnd = this.textInput.value.length;
@@ -1003,6 +1003,6 @@ export class VoisBlock{
   data: {
     id: number,
     text: string,
-    name: string
+    name: string,
   };
 }

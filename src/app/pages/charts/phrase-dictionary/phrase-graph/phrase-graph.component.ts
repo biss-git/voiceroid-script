@@ -70,13 +70,13 @@ export class PhraseGraphComponent implements AfterViewInit, OnDestroy  {
     this.layout.title = this.phraseService.title;
     const phrase = this.phraseService.value;
 
-    let graph
+    let graph;
     try{
       // グラフデータに変換
       graph = this.phraseService.phraseToGraph(phrase);
     }
-    catch(e){
-      console.log("フレーズの読込に失敗しました。");
+    catch (e){
+      console.log('フレーズの読込に失敗しました。');
       console.log(e);
       return;
     }

@@ -13,7 +13,7 @@ import { ScriptProjectService } from '../../../service/script-project.service';
 @Component({
   selector: 'ngx-script-project',
   templateUrl: './script-project.component.html',
-  styleUrls: ['./script-project.component.scss']
+  styleUrls: ['./script-project.component.scss'],
 })
 export class ScriptProjectComponent implements OnInit, OnDestroy {
 
@@ -47,7 +47,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    */
   projectShareLink: string = '';
 
-  queryId: string = ''
+  queryId: string = '';
   downloadLink: string = '';
 
   @ViewChild('item', { static: true }) accordion;
@@ -66,7 +66,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     private toastrService: NbToastrService,
     private activatedRoute: ActivatedRoute,
     public projectService: ScriptProjectService,
-    private router: Router
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -75,12 +75,12 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
 
     this.userService.userChange.pipe(takeUntil(this.destroy$)).subscribe((user: any) => {
       this.refreshState();
-      if(this.queryId && this.userExists){
+      if (this.queryId && this.userExists){
         this.openDriveProject(this.queryId);
         this.queryId = '';
         this.downloadLink = '';
       }
-      if(this.queryId && !this.userExists){
+      if (this.queryId && !this.userExists){
         this.accordion.toggle();
       }
     });
@@ -88,11 +88,11 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
 
     this.querySubscription = this.activatedRoute.queryParams.subscribe(
       params => {
-        if(params.id){
+        if (params.id){
           this.queryId = params.id;
           this.downloadLink = 'https://drive.google.com/uc?id=' + this.queryId;
         }
-      }
+      },
     );
   }
 
@@ -117,67 +117,67 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    * ファイルの読み込み
    * @param files
    */
-  async onProjectLoad(files:FileInfo[]){
-    if(files.length == 1){
+  async onProjectLoad(files: FileInfo[]){
+    if (files.length == 1){
       // 読み込んだファイル数が１つの時だけプロジェクトやその他ファイルを読み込む
-      if(files[0].extension == '.voisproj'){
-        this.loadProject(files[0])
+      if (files[0].extension == '.voisproj'){
+        this.loadProject(files[0]);
       }
       else{
-        this.showToast('warning',files[0].name ,'拡張子が対応していません。');
+        this.showToast('warning', files[0].name , '拡張子が対応していません。');
       }
     }
     else{
-      this.showToast('warning','' ,'１ファイルずつアップロードしてください');
+      this.showToast('warning', '' , '１ファイルずつアップロードしてください');
     }
     this.refreshTable();
   }
 
-  async onScriptLoad(files:FileInfo[]){
+  async onScriptLoad(files: FileInfo[]){
     files.forEach(file => {
-      if(file.extension == '.vois'){
+      if (file.extension == '.vois'){
         this.scriptSource.push(file);
-        this.showToast('success',file.name ,'');
+        this.showToast('success', file.name , '');
       }
-      else if(file.extension == '.vcha'){
+      else if (file.extension == '.vcha'){
         this.projectService.project.characters = file;
-        this.showToast('success',file.name ,'');
+        this.showToast('success', file.name , '');
       }
-      else if(file.extension == '.pdic'){
+      else if (file.extension == '.pdic'){
         this.projectService.project.phraseDictionary = file;
-        this.showToast('success',file.name ,'');
+        this.showToast('success', file.name , '');
       }
-      else if(file.extension == '.vpc'){
+      else if (file.extension == '.vpc'){
         this.projectService.project.voicePreset = file;
-        this.showToast('success',file.name ,'');
+        this.showToast('success', file.name , '');
       }
-      else if(file.extension == '.settings'){
+      else if (file.extension == '.settings'){
         this.projectService.project.settings = file;
-        this.showToast('success',file.name ,'');
+        this.showToast('success', file.name , '');
       }
       else{
-        this.showToast('warning',file.name ,'拡張子が対応していません。');
+        this.showToast('warning', file.name , '拡張子が対応していません。');
       }
     });
     this.refreshTable();
   }
 
-  async onLinkFileLoad(files:FileInfo[]){
-    if(files.length == 1){
-      if(!this.googleAPI.userExists()){
-        this.showToast('warning','' ,'添付ファイルをアップロードするにはGoogleアカウントでログインしてください');
+  async onLinkFileLoad(files: FileInfo[]){
+    if (files.length == 1){
+      if (!this.googleAPI.userExists()){
+        this.showToast('warning', '' , '添付ファイルをアップロードするにはGoogleアカウントでログインしてください');
         return;
       }
       if (window.confirm('「' + files[0].name + '」をGoogle Drive にアップロードして公開しますか？')) {
-        await this.googleAPI.makeNewLinkFile(files[0])
+        await this.googleAPI.makeNewLinkFile(files[0]);
         this.linkSource.push(files[0]);
-        this.showToast('success','アップロードされました' ,'');
+        this.showToast('success', 'アップロードされました' , '');
       } else {
         return;
       }
     }
     else{
-      this.showToast('warning','' ,'１ファイルずつアップロードしてください');
+      this.showToast('warning', '' , '１ファイルずつアップロードしてください');
     }
     this.refreshTable();
   }
@@ -187,7 +187,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    * @param dialog
    */
   async openDriveProjects(dialog: TemplateRef<any>): Promise<void> {
-    if(this.isBusy){return;}
+    if (this.isBusy){return; }
     this.isBusy = true;
     this.driveProjectList = await this.googleAPI.getProjectList();
     this.dialogRef = this.dialogService.open(dialog);
@@ -199,7 +199,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    * @param file
    */
   async openDriveProject(id: string): Promise<void>{
-    if(id){
+    if (id){
       const file = await this.googleAPI.getProject(id);
       this.loadProject(file);
     }
@@ -213,33 +213,33 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    */
   loadProject(file: FileInfo): void{
     this.clearProject(true);
-    if(file && file.extension == '.voisproj'){
+    if (file && file.extension == '.voisproj'){
       let project: any;
-      if(typeof(file.content) == 'string'){
+      if (typeof(file.content) == 'string'){
         project = JSON.parse(file.content);
       }
       else{
         project = file.content;
       }
-      if(project.scripts){
+      if (project.scripts){
         this.scriptSource = project.scripts;
       }
-      if(project.characters){
+      if (project.characters){
         this.projectService.project.characters = project.characters;
       }
-      if(project.phraseDictionary){
+      if (project.phraseDictionary){
         this.projectService.project.phraseDictionary = project.phraseDictionary;
       }
-      if(project.voicePreset){
+      if (project.voicePreset){
         this.projectService.project.voicePreset = project.voicePreset;
       }
-      if(project.settings){
+      if (project.settings){
         this.projectService.project.settings = project.settings;
       }
-      if(project.fileLinks){
+      if (project.fileLinks){
         this.linkSource = project.fileLinks;
       }
-      this.showToast('success','プロジェクトを読み込みました。' ,'');
+      this.showToast('success', 'プロジェクトを読み込みました。' , '');
     }
   }
 
@@ -264,8 +264,8 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       this.googleAPI.clearCurrentProject();
       this.refreshState();
       this.refreshTable();
-      if(!exec){
-        this.showToast('success','プロジェクトが削除されました' ,'');
+      if (!exec){
+        this.showToast('success', 'プロジェクトが削除されました' , '');
       }
       return true;
     }
@@ -283,9 +283,9 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
 
 
   clearFile(file: FileInfo, name: string): void{
-    if(file){
-      if(window.confirm(file.name + 'を削除しますか？')){
-        switch(name){
+    if (file){
+      if (window.confirm(file.name + 'を削除しますか？')){
+        switch (name){
           case '.vcha':
             this.projectService.project.characters = null;
             break;
@@ -306,7 +306,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
 
 
   downloadFile(file: FileInfo): void{
-    if(file){
+    if (file){
       this.download.downloadFile(file);
     }
   }
@@ -318,14 +318,14 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    * @param event
    * @param type
    */
-  onDeleteConfirm(event, type:string): void {
+  onDeleteConfirm(event, type: string): void {
     if (window.confirm('「' + event.data.name + '」を削除しますか？')) {
       event.confirm.resolve(event.data);
     } else {
       event.confirm.reject(event.data);
     }
     setTimeout(() => {
-      switch(type){
+      switch (type){
         case 'script':
           this.scriptSource = event.source.data;
           break;
@@ -333,7 +333,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
           this.linkSource = event.source.data;
           break;
       }
-      this.showToast('danger',event.data.name + ' が削除されました' ,'');
+      this.showToast('danger', event.data.name + ' が削除されました' , '');
       this.refreshTable();
     }, 10);
   }
@@ -344,16 +344,16 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    */
   async makeDriveProject(): Promise<void>{
     const name = prompt('プロジェクト名を入力してください', '');
-    if(name){
-      if(this.isBusy){return;}
+    if (name){
+      if (this.isBusy){return; }
       this.isBusy = true;
       const file = {
         name: name + '.voisproj',
         extension: '.voisproj',
-        content: this.projectService.project
+        content: this.projectService.project,
       } as FileInfo;
       await this.googleAPI.makeNewProject(file);
-      this.showToast('primary','プロジェクトの作成が終わりました' ,'');
+      this.showToast('primary', 'プロジェクトの作成が終わりました' , '');
     }
     this.refreshState();
   }
@@ -363,28 +363,28 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    */
   async updateDriveProject(): Promise<void>{
     if (window.confirm('「' + this.projectName + '」を保存しますか？　googleドライブの内容が上書きされます。')) {
-      if(this.isBusy){return;}
+      if (this.isBusy){return; }
       this.isBusy = true;
       this.googleAPI.currentProject.content = this.projectService.project;
       await this.googleAPI.updateCurrentProject(this.googleAPI.currentProject);
-      this.showToast('primary','プロジェクトの保存が終わりました' ,'');
+      this.showToast('primary', 'プロジェクトの保存が終わりました' , '');
     }
     this.refreshState();
   }
 
   async releaseDriveProject(): Promise<void>{
-    if(this.isBusy){return;}
+    if (this.isBusy){return; }
     this.isBusy = true;
     await this.googleAPI.makeReleasePermission();
-    this.showToast('primary','プロジェクトの公開処理が終わりました' ,'');
+    this.showToast('primary', 'プロジェクトの公開処理が終わりました' , '');
     this.refreshState();
   }
 
   async unreleaseDriveProject(): Promise<void>{
-    if(this.isBusy){return;}
+    if (this.isBusy){return; }
     this.isBusy = true;
     await this.googleAPI.deleteReleasePermission();
-    this.showToast('primary','プロジェクトの比公開処理が終わりました' ,'');
+    this.showToast('primary', 'プロジェクトの比公開処理が終わりました' , '');
     this.refreshState();
   }
 
@@ -394,7 +394,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     if (navigator.clipboard){
       navigator.clipboard.writeText(this.projectShareLink).then(
         () => {
-          this.showToast('primary','クリップボードに共有リンクがコピーされました','');
+          this.showToast('primary', 'クリップボードに共有リンクがコピーされました', '');
         },
         () => {/* 失敗 */},
       );
@@ -404,7 +404,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
 
 
 
-  private showToast(type: NbComponentStatus, title: string, body: string, ms:number = 1500) {
+  private showToast(type: NbComponentStatus, title: string, body: string, ms: number = 1500) {
 
     const config = {
       status: type,
@@ -432,8 +432,8 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    */
 
 
-  scriptSource : FileInfo[] = []
-  linkSource : FileInfo[] = []
+  scriptSource: FileInfo[] = [];
+  linkSource: FileInfo[] = [];
 
   driveProjectList: GoogleFileInfo[] = [];
 
@@ -442,10 +442,10 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     pager: {
       perPage: 5,
     },
-    actions:{
+    actions: {
       add: false,
-      edit:false,
-      position:'right',
+      edit: false,
+      position: 'right',
     },
     edit: {
       editButtonContent: '<i class="nb-edit"></i>',
@@ -467,19 +467,19 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       open: {
         title: '',
         type: 'html',
-        valuePrepareFunction: (value,value2,value3) => {
+        valuePrepareFunction: (value, value2, value3) => {
           const number = value3.dataSet.data.indexOf(value2);
           const id = 'scriptOpen' + number;
           setTimeout(() => {
             const element = document.getElementById(id);
-            if(element){
+            if (element){
               element.addEventListener('click', (e) => {
                 this.router.navigate(['pages/editors/voiceroid-editor', {number: number}]);
               });
             }
           }, 30);
           return this.sanitizer.bypassSecurityTrustHtml(
-            "<svg id='" + id  + "' class='myIconHover' style='cursor: pointer; width:32px; height:32px;' xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'><title>ionicons-v5-k</title><path d='M384,224V408a40,40,0,0,1-40,40H104a40,40,0,0,1-40-40V168a40,40,0,0,1,40-40H271.48' style='fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px'/><polyline points='336 64 448 64 448 176' style='fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px'/><line x1='224' y1='288' x2='440' y2='72' style='fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px'/></svg>"
+            '<svg id=\'' + id  + '\' class=\'myIconHover\' style=\'cursor: pointer; width:32px; height:32px;\' xmlns=\'http://www.w3.org/2000/svg\' width=\'512\' height=\'512\' viewBox=\'0 0 512 512\'><title>ionicons-v5-k</title><path d=\'M384,224V408a40,40,0,0,1-40,40H104a40,40,0,0,1-40-40V168a40,40,0,0,1,40-40H271.48\' style=\'fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px\'/><polyline points=\'336 64 448 64 448 176\' style=\'fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px\'/><line x1=\'224\' y1=\'288\' x2=\'440\' y2=\'72\' style=\'fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px\'/></svg>',
             );
         },
         filter: false,
@@ -490,12 +490,12 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       download: {
         title: '',
         type: 'html',
-        valuePrepareFunction: (value,value2,value3) => {
+        valuePrepareFunction: (value, value2, value3) => {
           const number = value3.dataSet.data.indexOf(value2);
           const id = 'scriptDownload' + number;
           setTimeout(() => {
             const element = document.getElementById(id);
-            if(element){
+            if (element){
               element.addEventListener('click', (e) => {
                 this.download.downloadText( this.projectService.project.scripts[number].content,
                   this.projectService.project.scripts[number].name, false, '');
@@ -503,7 +503,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
             }
           }, 30);
           return this.sanitizer.bypassSecurityTrustHtml(
-            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>'
+            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>',
             );
         },
         filter: false,
@@ -520,10 +520,10 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     pager: {
       perPage: 5,
     },
-    actions:{
+    actions: {
       add: false,
       edit: false,
-      position:'right',
+      position: 'right',
     },
     edit: {
       editButtonContent: '<i class="nb-edit"></i>',
@@ -547,7 +547,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         type: 'html',
         valuePrepareFunction: (value, value2, value3) => {
           return this.sanitizer.bypassSecurityTrustHtml(
-            '<a href="' + value + '"><svg class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg></a>'
+            '<a href="' + value + '"><svg class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg></a>',
             );
         },
         filter: false,
@@ -564,7 +564,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     pager: {
       perPage: 5,
     },
-    actions:{
+    actions: {
       add: false,
       edit: false,
       delete: false,
@@ -584,12 +584,12 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       download: {
         title: '開く',
         type: 'html',
-        valuePrepareFunction: (value,value2) => {
+        valuePrepareFunction: (value, value2) => {
           console.log(value2);
           const id = 'driveProjectOpen';
           setTimeout(() => {
             const element = document.getElementById(id);
-            if(element){
+            if (element){
               element.addEventListener('click', (e) => {
                 this.dialogRef.close();
                 this.openDriveProject(value2.id);
@@ -597,7 +597,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
             }
           }, 30);
           return this.sanitizer.bypassSecurityTrustHtml(
-            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>'
+            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>',
             );
         },
         filter: false,
@@ -618,7 +618,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         filter: true,
         sort: true,
         width: '80px',
-      }
+      },
     },
   };
 

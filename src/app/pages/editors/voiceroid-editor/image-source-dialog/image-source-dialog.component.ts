@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
 import { CharactorsService } from '../../../../service/charactors.service';
 import { Character } from '../../../../model/character.model';
@@ -7,7 +7,7 @@ import { FormControl, Validators } from '@angular/forms';
 @Component({
   selector: 'ngx-image-source-dialog',
   templateUrl: './image-source-dialog.component.html',
-  styleUrls: ['./image-source-dialog.component.scss']
+  styleUrls: ['./image-source-dialog.component.scss'],
 })
 export class ImageSourceDialogComponent {
 
@@ -17,9 +17,9 @@ export class ImageSourceDialogComponent {
 
   constructor(
     protected ref: NbDialogRef<ImageSourceDialogComponent>,
-    private charaService: CharactorsService,) {
+    private charaService: CharactorsService) {
       this.chara = this.charaService.selectedChara;
-      this.url = new FormControl(this.chara.src,[Validators.required])
+      this.url = new FormControl(this.chara.src, [Validators.required]);
       this.sources = this.charaService.sources;
   }
 
