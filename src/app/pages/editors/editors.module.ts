@@ -31,6 +31,7 @@ import { HomeComponent } from './home/home.component';
     Ng2SmartTableModule,
     FormsModule,
     ReactiveFormsModule,
+    NbTooltipModule,
   ],
   declarations: [
     ...routedComponents,

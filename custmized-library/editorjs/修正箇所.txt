@@ -4,6 +4,9 @@ https://github.com/codex-team/editor.js
 変更時はver2.17くらい(2020年4月現在)
 
 
+node_modules\@editorjs\editorjs\dist\editor.js を置き換えればいい
+あとtypesフォルダも
+
 
 以下は変更箇所
 

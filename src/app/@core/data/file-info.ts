@@ -7,6 +7,8 @@ export interface FileInfo {
 export interface GoogleFileInfo extends FileInfo {
   id: string;
   permissions: PermissionInfo[];
+  modifiedTime?: string;
+  shared?: string;
 }
 
 export interface PermissionInfo {

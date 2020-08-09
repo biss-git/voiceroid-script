@@ -12,7 +12,11 @@
 
 <nb-card>
   <nb-card-header id="phraseGraph">
-    <h4>フレーズの表示</h4>
+    <h4>
+      フレーズの表示
+      <nb-icon icon="arrow-ios-forward" (click)="selectPhrase(this.phraseService.num + 1)" style="float: right; width: 50px; height: 35px; cursor: pointer;"></nb-icon>
+      <nb-icon icon="arrow-ios-back" (click)="selectPhrase(this.phraseService.num - 1)" style="float: right; width: 50px; height: 35px; cursor: pointer;"></nb-icon>
+    </h4>
   </nb-card-header>
   <nb-card-body>
     <ngx-phrase-graph graphid="_main"></ngx-phrase-graph>

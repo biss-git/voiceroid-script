@@ -11,6 +11,43 @@
 </nb-card>
 
 <nb-card>
+  <nb-accordion>
+    <nb-accordion-item #item>
+      <nb-accordion-item-header id="characterList">
+        <h4>
+          キャラクター情報編集
+        </h4>
+      </nb-accordion-item-header>
+      <nb-accordion-item-body>
+
+        <button nbButton outline (click)="onSaveChara()" style="float: right">
+          キャラクター情報保存　（.vcha）
+          <nb-icon icon="download-outline"></nb-icon>
+        </button>
+        <button nbButton outline (click)="reNumbering()" style="float: right">
+          ID の 整理
+          <nb-icon icon="refresh"></nb-icon>
+        </button>
+
+        <button nbButton outline (click)="allCheck()">
+          すべて表示 / 非表示
+          <nb-icon icon="checkmark-square-outline"></nb-icon>
+        </button>
+        <ng2-smart-table [settings]="settings" [source]="characters" (deleteConfirm)="onDeleteConfirm($event)" (editConfirm)="onEditConfirm($event)" (createConfirm)="onCreateConfirm($event)">
+        </ng2-smart-table>
+
+      </nb-accordion-item-body>
+    </nb-accordion-item>
+  </nb-accordion>
+  <div style="margin: 10px;">
+    <ng-container *ngFor="let chara of characters">
+      <img [src]="chara.src" width="50" height="50" style="margin: 5px;"
+           [nbTooltip]="chara.name" nbTooltipPlacement="top">
+    </ng-container>
+  </div>
+</nb-card>
+
+<nb-card>
   <nb-card-header id="scriptEditor">
     <h4>
       台本編集
@@ -79,8 +116,9 @@
   </nb-card-body>
 </nb-card>
 
-<nb-card>
-  <nb-card-header id="characterList">
+
+<!-- <nb-card>
+  <nb-card-header id="characterList_">
     <h4>
       キャラクター情報編集
       <button nbButton outline (click)="onSaveChara()" style="float: right">
@@ -100,9 +138,8 @@
     </button>
     <ng2-smart-table [settings]="settings" [source]="characters" (deleteConfirm)="onDeleteConfirm($event)" (editConfirm)="onEditConfirm($event)" (createConfirm)="onCreateConfirm($event)">
     </ng2-smart-table>
-    <br>
   </nb-card-body>
-</nb-card>
+</nb-card> -->
 
 <nb-card>
   <nb-card-header>

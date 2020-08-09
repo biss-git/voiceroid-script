@@ -12,20 +12,20 @@ export class ScriptProjectService {
 
   project: ScriptProject ={
     scripts: [],
-    characters: [],
-    phraseDictionary: [],
-    voicePreset: [],
-    settings: [],
+    characters: null,
+    phraseDictionary: null,
+    voicePreset: null,
+    settings: null,
     fileLinks : [],
   }
 
   clearProject(){
     this.project ={
       scripts: [],
-      characters: [],
-      phraseDictionary: [],
-      voicePreset: [],
-      settings: [],
+      characters: null,
+      phraseDictionary: null,
+      voicePreset: null,
+      settings: null,
       fileLinks : [],
     }
   }

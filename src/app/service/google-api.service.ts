@@ -267,10 +267,13 @@ export class GoogleApiService {
     const newProjectList: GoogleFileInfo[] = [];
     const params = {
       q: "name contains '.voisproj' and mimeType = 'application/json' and trashed = false and '" + this.projectsId + "' in parents",
+      pageSize: '1000',
+      fields: 'files(name, id, modifiedTime, shared)',
     };
     const url = 'https://www.googleapis.com/drive/v3/files';
     await this.http.get(url ,{'headers': this.getHeader(), params}).toPromise().then((data)=>{
       const files = data['files'];
+      console.log(files);
       if( files && files.length>0){
         files.forEach(f => {
           newProjectList.push({
@@ -279,6 +282,8 @@ export class GoogleApiService {
             extension: '.voisproj',
             content: '',
             permissions: undefined,
+            modifiedTime: f.modifiedTime.slice(0,10),
+            shared: f.shared? '公開': '非公開',
           });
         });
       }

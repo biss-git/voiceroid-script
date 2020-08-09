@@ -16,7 +16,7 @@ import { isRegExp } from 'util';
 export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
 
   constructor(
-    private phraseService: PhraseService,
+    public phraseService: PhraseService,
     private theme: NbThemeService,
     private activatedRoute: ActivatedRoute,
     private projectService: ScriptProjectService) {}
@@ -77,9 +77,9 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
       console.log('params', params);
       if(params.has('number')){
         const phrase = this.projectService.project.phraseDictionary
-        if(phrase && phrase.length > 0){
+        if(phrase){
           setTimeout(() => {
-            this.onFileLoad(phrase);
+            this.onFileLoad([phrase]);
           }, 100);
         }
       }
@@ -125,13 +125,18 @@ export class PhraseDictionaryComponent implements AfterViewInit, OnDestroy {
      return;
     }
 
-    this.phraseService.num = event.data.num;
-    this.phraseService.num %= this.phraseService.phrase.length;
-    this.phraseService.selectPhrase(this.phraseService.num);
-    this.phraseService.changePhrase();
+    this.selectPhrase(event.data.num);
 
     const target = document.getElementById('phraseGraph');
     target.scrollIntoView();
+  }
+
+  selectPhrase(id: number): void{
+    this.phraseService.num = id;
+    this.phraseService.num += this.phraseService.phrase.length;
+    this.phraseService.num %= this.phraseService.phrase.length;
+    this.phraseService.selectPhrase(this.phraseService.num);
+    this.phraseService.changePhrase();
   }
 
 }

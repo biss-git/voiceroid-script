@@ -13,6 +13,7 @@ import { ScriptProjectService } from '../../../service/script-project.service';
 import { Route } from '@angular/compiler/src/core';
 import { ImageSourceDialogComponent } from './image-source-dialog/image-source-dialog.component';
 import { Character } from '../../../model/character.model';
+import { ProfitBarAnimationChartData } from '../../../@core/data/profit-bar-animation-chart';
 
 @Component({
   selector: 'ngx-voiceroid-editor',
@@ -55,8 +56,8 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         this.charaLoad = false;
         this.scriptLoad = false;
         this.isBusy = true;
-        if(characters && characters.length > 0){
-          this.onFileLoad(characters);
+        if(characters){
+          this.onFileLoad([characters]);
         }
         else{
           this.characters = this.charaService.characters;
@@ -376,6 +377,14 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
           b.data.id = this.characters[index].id;
           b.data.text = text.slice(pos + 1);
         }
+      }
+      if(b.data.id == 0 && b.data.name){
+        this.characters.forEach(c => {
+          const name = c.name.replace(' ', '_');
+          if(b.data.name.includes(name) || b.data.name.includes(c.name)){
+            b.data.id = c.id;
+          }
+        });
       }
     });
   }
@@ -781,6 +790,7 @@ class VoiceroidEditorPlugin {
     this.textInput.onkeyup = this.onKeyUp.bind(this);
     this.textInput.onkeydown = this.onKeyDown.bind(this);
     this.textInput.setAttribute('rows', '1');
+    this.textInput.title = this.name;
 
     this.div.appendChild(this.textInput);
     this.div.style.display = 'flex';
@@ -910,6 +920,7 @@ class VoiceroidEditorPlugin {
       const result = window.prompt('ブロックのファイル名を入力', this.name);
       if(result){
         this.name = result;
+        this.textInput.title = this.name;
       }
     }
 
@@ -967,6 +978,7 @@ class VoiceroidEditorPlugin {
     else{
       this.img.height = 50;
       src =  VoiceroidEditorPlugin.characters.find(c => c.id==tune.id).src;
+      this.img.title = VoiceroidEditorPlugin.characters[this.id].name;
       this.img.alt = tune.name;
     }
     this.img.src = src!='' ? src : 'assets/images/null.png';

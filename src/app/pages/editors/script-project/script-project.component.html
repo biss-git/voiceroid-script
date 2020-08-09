@@ -75,40 +75,47 @@
       台本ファイル
     </h5>
     <ng2-smart-table [settings]="scriptSettings" [source]="scriptSource" (deleteConfirm)="onDeleteConfirm($event,'script')"></ng2-smart-table>
-    <!-- <ng2-smart-table [settings]="characterSettings" [source]="characterSource" (deleteConfirm)="onDeleteConfirm($event,'character')"></ng2-smart-table> -->
     <div class="file-block">
       <span class="file-type">キャラクター情報(.vcha)</span>
-      <span class="file-name">ファイル名.vcha</span>
-      <nb-icon icon="trash-2-outline" class="action-icon"></nb-icon>
-      <nb-icon icon="download-outline" class="action-icon"></nb-icon>
+      <span class="file-name">{{projectService.project.characters?.name}}</span>
+      <ng-container *ngIf="projectService.project.characters">
+        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.characters, '.vcha')"></nb-icon>
+        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.characters)"></nb-icon>
+      </ng-container>
     </div>
 
     <h5 style="margin-top: 50px;">
       <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><style></style></defs><g id="Layer_2" data-name="Layer 2"><g id="smiling-face"><g id="smiling-face" data-name="smiling-face"><rect width="24" height="24" opacity="0"/><path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm5 9a5 5 0 0 1-10 0z" id="🎨-Icon-Сolor"/></g></g></g></svg>
       ボイスロイド２エディタ
+      <a href="https://sites.google.com/view/voiceroid-script-guide/%E8%A8%AD%E5%AE%9A%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%AE%E5%8F%96%E5%BE%97%E6%96%B9%E6%B3%95" target="_brank">
+        <nb-icon icon="question-mark-circle-outline"></nb-icon>
+      </a>
     </h5>
     <div class="file-block">
       <span class="file-type">フレーズ辞書(.pdic)</span>
-      <span class="file-name">ファイル名.pdic</span>
-      <nb-icon icon="trash-2-outline" class="action-icon"></nb-icon>
-      <nb-icon icon="download-outline" class="action-icon"></nb-icon>
-      <nb-icon icon="book-open-outline" class="action-icon"></nb-icon>
+      <span class="file-name">{{projectService.project.phraseDictionary?.name}}</span>
+      <ng-container *ngIf="projectService.project.phraseDictionary">
+        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.phraseDictionary, '.pdic')"></nb-icon>
+        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.phraseDictionary)"></nb-icon>
+        <nb-icon icon="book-open-outline" class="action-icon" [routerLink]="['/pages/charts/PhraseDictionary', {number: 0}]"></nb-icon>
+      </ng-container>
     </div>
     <div class="file-block">
       <span class="file-type">ボイスプリセット(.vpc)</span>
-      <span class="file-name">ファイル名.vpc</span>
-      <nb-icon icon="trash-2-outline" class="action-icon"></nb-icon>
-      <nb-icon icon="download-outline" class="action-icon"></nb-icon>
+      <span class="file-name">{{projectService.project.voicePreset?.name}}</span>
+      <ng-container *ngIf="projectService.project.voicePreset">
+        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.voicePreset, '.vpc')"></nb-icon>
+        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.voicePreset)"></nb-icon>
+      </ng-container>
     </div>
     <div class="file-block">
       <span class="file-type">設定ファイル(.settings)</span>
-      <span class="file-name">ファイル名.settings</span>
-      <nb-icon icon="trash-2-outline" class="action-icon"></nb-icon>
-      <nb-icon icon="download-outline" class="action-icon"></nb-icon>
+      <span class="file-name">{{projectService.project.settings?.name}}</span>
+      <ng-container *ngIf="projectService.project.settings">
+        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.settings, '.settings')"></nb-icon>
+        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.settings)"></nb-icon>
+      </ng-container>
     </div>
-    <!-- <ng2-smart-table [settings]="phraseSettings" [source]="phraseSource" (deleteConfirm)="onDeleteConfirm($event,'phrase')"></ng2-smart-table>
-    <ng2-smart-table [settings]="presetSettings" [source]="presetSource" (deleteConfirm)="onDeleteConfirm($event,'preset')"></ng2-smart-table>
-    <ng2-smart-table [settings]="settingSettings" [source]="settingSource" (deleteConfirm)="onDeleteConfirm($event,'setting')"></ng2-smart-table> -->
 
     <ng-container *ngIf="userExists">
       <h5 style="margin-top: 50px;">
@@ -183,9 +190,12 @@
       <h4>Googleドライブのプロジェクトを開く</h4>
     </nb-card-header>
     <nb-card-body>
-      <div *ngFor="let item of driveProjectList">
+      <!-- <div *ngFor="let item of driveProjectList">
         <button nbButton ghost (click)="ref.close(); openDriveProject(item.id)">{{item.name}}</button>
-      </div>
+      </div> -->
+
+      <ng2-smart-table [settings]="driveProjectsSettings" [source]="driveProjectList"></ng2-smart-table>
+
       <ng-container *ngIf="driveProjectList.length==0">
         Googleドライブにプロジェクトファイルが見つかりません。
       </ng-container>

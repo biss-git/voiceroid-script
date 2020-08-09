@@ -6,7 +6,7 @@ import { GoogleApiService } from '../../../service/google-api.service';
 import { UserService } from '../../../@core/mock/users.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject, Subscription } from 'rxjs';
-import { NbDialogService, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition } from '@nebular/theme';
+import { NbDialogService, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition, NbDialogRef } from '@nebular/theme';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScriptProjectService } from '../../../service/script-project.service';
 
@@ -18,8 +18,6 @@ import { ScriptProjectService } from '../../../service/script-project.service';
 export class ScriptProjectComponent implements OnInit, OnDestroy {
 
   private destroy$: Subject<void> = new Subject<void>();
-
-  driveProjectList: GoogleFileInfo[] = [];
 
 
   isBusy: boolean = false;
@@ -57,6 +55,8 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
 
   querySubscription: Subscription;
 
+  dialogRef: NbDialogRef<any>;
+
   constructor(
     private sanitizer: DomSanitizer,
     private download: DownloadService,
@@ -65,16 +65,12 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private toastrService: NbToastrService,
     private activatedRoute: ActivatedRoute,
-    private projectService: ScriptProjectService,
+    public projectService: ScriptProjectService,
     private router: Router
   ) { }
 
   ngOnInit() {
     this.scriptSource = this.projectService.project.scripts;
-    this.characterSource = this.projectService.project.characters;
-    this.phraseSource = this.projectService.project.phraseDictionary;
-    this.presetSource = this.projectService.project.voicePreset;
-    this.settingSource = this.projectService.project.settings;
     this.linkSource = this.projectService.project.fileLinks;
 
     this.userService.userChange.pipe(takeUntil(this.destroy$)).subscribe((user: any) => {
@@ -144,19 +140,19 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         this.showToast('success',file.name ,'');
       }
       else if(file.extension == '.vcha'){
-        this.characterSource = [file];
+        this.projectService.project.characters = file;
         this.showToast('success',file.name ,'');
       }
       else if(file.extension == '.pdic'){
-        this.phraseSource = [file];
+        this.projectService.project.phraseDictionary = file;
         this.showToast('success',file.name ,'');
       }
       else if(file.extension == '.vpc'){
-        this.presetSource = [file];
+        this.projectService.project.voicePreset = file;
         this.showToast('success',file.name ,'');
       }
       else if(file.extension == '.settings'){
-        this.settingSource = [file];
+        this.projectService.project.settings = file;
         this.showToast('success',file.name ,'');
       }
       else{
@@ -194,7 +190,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     if(this.isBusy){return;}
     this.isBusy = true;
     this.driveProjectList = await this.googleAPI.getProjectList();
-    this.dialogService.open(dialog);
+    this.dialogRef = this.dialogService.open(dialog);
     this.refreshState();
   }
 
@@ -216,6 +212,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    * @param file
    */
   loadProject(file: FileInfo): void{
+    this.clearProject(true);
     if(file && file.extension == '.voisproj'){
       let project: any;
       if(typeof(file.content) == 'string'){
@@ -228,16 +225,16 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         this.scriptSource = project.scripts;
       }
       if(project.characters){
-        this.characterSource = project.characters;
+        this.projectService.project.characters = project.characters;
       }
       if(project.phraseDictionary){
-        this.phraseSource = project.phraseDictionary;
+        this.projectService.project.phraseDictionary = project.phraseDictionary;
       }
       if(project.voicePreset){
-        this.presetSource = project.voicePreset;
+        this.projectService.project.voicePreset = project.voicePreset;
       }
       if(project.settings){
-        this.settingSource = project.settings;
+        this.projectService.project.settings = project.settings;
       }
       if(project.fileLinks){
         this.linkSource = project.fileLinks;
@@ -255,28 +252,24 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     //this.settingSource = [].concat(this.settingSource);
     this.linkSource = this.linkSource.concat();
     this.projectService.project.scripts = this.scriptSource;
-    this.projectService.project.characters = this.characterSource;
-    this.projectService.project.phraseDictionary = this.phraseSource;
-    this.projectService.project.voicePreset = this.presetSource;
-    this.projectService.project.settings = this.settingSource;
     this.projectService.project.fileLinks = this.linkSource;
   }
 
 
-  clearProject(){
-    if (window.confirm('調整データを全て削除します。よろしいですか？')) {
+  clearProject(exec: boolean = false): boolean{
+    if (exec || window.confirm('調整データを全て削除します。よろしいですか？')) {
       this.scriptSource = [];
-      this.characterSource = [];
-      this.phraseSource = [];
-      this.presetSource = [];
-      this.settingSource = [];
       this.linkSource = [];
       this.projectService.clearProject();
       this.googleAPI.clearCurrentProject();
       this.refreshState();
       this.refreshTable();
-      this.showToast('success','プロジェクトが削除されました' ,'');
+      if(!exec){
+        this.showToast('success','プロジェクトが削除されました' ,'');
+      }
+      return true;
     }
+    return false;
   }
 
 
@@ -286,6 +279,36 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
   saveProject(){
     const json = JSON.stringify(this.projectService.project, undefined, 2);
     this.download.downloadText(json, 'プロジェクト', true, '.voisproj');
+  }
+
+
+  clearFile(file: FileInfo, name: string): void{
+    if(file){
+      if(window.confirm(file.name + 'を削除しますか？')){
+        switch(name){
+          case '.vcha':
+            this.projectService.project.characters = null;
+            break;
+          case '.pdic':
+            this.projectService.project.phraseDictionary = null;
+            break;
+          case '.vpc':
+            this.projectService.project.voicePreset = null;
+            break;
+          case '.settings':
+            this.projectService.project.settings = null;
+            break;
+        }
+        console.log(this.projectService.project);
+      }
+    }
+  }
+
+
+  downloadFile(file: FileInfo): void{
+    if(file){
+      this.download.downloadFile(file);
+    }
   }
 
 
@@ -305,18 +328,6 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       switch(type){
         case 'script':
           this.scriptSource = event.source.data;
-          break;
-        case 'character':
-          this.characterSource = event.source.data;
-          break;
-        case 'phrase':
-          this.phraseSource = event.source.data;
-          break;
-        case 'preset':
-          this.presetSource = event.source.data;
-          break;
-        case 'setting':
-          this.settingSource = event.source.data;
           break;
         case 'link':
           this.linkSource = event.source.data;
@@ -412,12 +423,19 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
   }
 
 
+
+
+  /**
+   *
+   * ここから下は表に関するデータたち
+   *
+   */
+
+
   scriptSource : FileInfo[] = []
-  characterSource : FileInfo[] = []
-  phraseSource : FileInfo[] = []
-  presetSource : FileInfo[] = []
-  settingSource : FileInfo[] = []
   linkSource : FileInfo[] = []
+
+  driveProjectList: GoogleFileInfo[] = [];
 
 
   scriptSettings = {
@@ -497,217 +515,6 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
   };
 
 
-  characterSettings = {
-    pager: {
-      perPage: 5,
-    },
-    actions:{
-      add: false,
-      edit:false,
-      position:'right',
-    },
-    delete: {
-      deleteButtonContent: '<i class="nb-trash"></i>',
-      confirmDelete: true,
-    },
-    columns: {
-      name: {
-        title: '・キャラクター情報 (.vcha)',
-        type: 'string',
-        filter: false,
-        sort: false,
-        width: '100%',
-      },
-      download: {
-        title: '',
-        type: 'html',
-        valuePrepareFunction: (value,value2) => {
-          const id = 'charactorDownload';
-          setTimeout(() => {
-            const element = document.getElementById(id);
-            if(element){
-              element.addEventListener('click', (e) => {
-                this.download.downloadFile( this.projectService.project.characters[0]);
-              });
-            }
-          }, 30);
-          return this.sanitizer.bypassSecurityTrustHtml(
-            '<svg id="' + id + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>'
-            );
-        },
-        filter: false,
-        sort: false,
-        editable: false,
-        width: '50px',
-      },
-    },
-  };
-
-
-  phraseSettings = {
-    pager: {
-      perPage: 5,
-    },
-    actions:{
-      add: false,
-      edit:false,
-      position:'right',
-    },
-    delete: {
-      deleteButtonContent: '<i class="nb-trash"></i>',
-      confirmDelete: true,
-    },
-    columns: {
-      name: {
-        title: '・フレーズ辞書 (.pdic)',
-        type: 'string',
-        filter: false,
-        sort: false,
-        width: '100%',
-      },
-      open: {
-        title: '',
-        type: 'html',
-        valuePrepareFunction: (value,value2) => {
-          const id = 'pharaseOpen';
-          setTimeout(() => {
-            const element = document.getElementById(id);
-            if(element){
-              element.addEventListener('click', (e) => {
-                this.router.navigate(['pages/charts/PhraseDictionary', {number: 0}]);
-              });
-            }
-          }, 30);
-          return this.sanitizer.bypassSecurityTrustHtml(
-            "<svg id='" + id  + "' class='myIconHover' style='cursor: pointer; width:32px; height:32px;' xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'><title>ionicons-v5-k</title><path d='M384,224V408a40,40,0,0,1-40,40H104a40,40,0,0,1-40-40V168a40,40,0,0,1,40-40H271.48' style='fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px'/><polyline points='336 64 448 64 448 176' style='fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px'/><line x1='224' y1='288' x2='440' y2='72' style='fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px'/></svg>"
-            );
-        },
-        filter: false,
-        sort: false,
-        editable: false,
-        width: '50px',
-      },
-      download: {
-        title: '',
-        type: 'html',
-        valuePrepareFunction: (value,value2) => {
-          const id = 'phraseDownload';
-          setTimeout(() => {
-            const element = document.getElementById(id);
-            if(element){
-              element.addEventListener('click', (e) => {
-                this.download.downloadFile(this.projectService.project.phraseDictionary[0]);
-              });
-            }
-          }, 30);
-          return this.sanitizer.bypassSecurityTrustHtml(
-            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>'
-            );
-        },
-        filter: false,
-        sort: false,
-        editable: false,
-        width: '50px',
-      },
-    },
-  };
-
-
-  presetSettings = {
-    pager: {
-      perPage: 5,
-    },
-    actions:{
-      add: false,
-      edit:false,
-      position:'right',
-    },
-    delete: {
-      deleteButtonContent: '<i class="nb-trash"></i>',
-      confirmDelete: true,
-    },
-    columns: {
-      name: {
-        title: '・ボイスプリセット (.vpc)',
-        type: 'string',
-        filter: false,
-        sort: false,
-        width: '100%',
-      },
-      download: {
-        title: '',
-        type: 'html',
-        valuePrepareFunction: (value,value2) => {
-          const id = 'presetDownload';
-          setTimeout(() => {
-            const element = document.getElementById(id);
-            if(element){
-              element.addEventListener('click', (e) => {
-                this.download.downloadText( this.projectService.project.voicePreset[0].content,
-                  this.projectService.project.voicePreset[0].name, false, '');
-              });
-            }
-          }, 30);
-          return this.sanitizer.bypassSecurityTrustHtml(
-            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>'
-            );
-        },
-        filter: false,
-        sort: false,
-        editable: false,
-        width: '50px',
-      },
-    },
-  };
-
-
-  settingSettings = {
-    pager: {
-      perPage: 5,
-    },
-    actions:{
-      add: false,
-      edit:false,
-      position:'right',
-    },
-    delete: {
-      deleteButtonContent: '<i class="nb-trash"></i>',
-      confirmDelete: true,
-    },
-    columns: {
-      name: {
-        title: '・設定ファイル (.settings)',
-        type: 'string',
-        filter: false,
-        sort: false,
-        width: '100%',
-      },
-      download: {
-        title: '',
-        type: 'html',
-        valuePrepareFunction: (value,value2) => {
-          const id = 'settingDownload';
-          setTimeout(() => {
-            const element = document.getElementById(id);
-            if(element){
-              element.addEventListener('click', (e) => {
-                this.download.downloadText( this.projectService.project.settings[0].content,
-                  this.projectService.project.settings[0].name, false, '');
-              });
-            }
-          }, 30);
-          return this.sanitizer.bypassSecurityTrustHtml(
-            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>'
-            );
-        },
-        filter: false,
-        sort: false,
-        editable: false,
-        width: '50px',
-      },
-    },
-  };
-
 
   linkSettings = {
     pager: {
@@ -753,6 +560,67 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
 
 
 
+  driveProjectsSettings = {
+    pager: {
+      perPage: 5,
+    },
+    actions:{
+      add: false,
+      edit: false,
+      delete: false,
+    },
+    delete: {
+      deleteButtonContent: '<i class="nb-trash"></i>',
+      confirmDelete: true,
+    },
+    columns: {
+      name: {
+        title: 'プロジェクト名',
+        type: 'string',
+        filter: true,
+        sort: true,
+        //width: '100%',
+      },
+      download: {
+        title: '開く',
+        type: 'html',
+        valuePrepareFunction: (value,value2) => {
+          console.log(value2);
+          const id = 'driveProjectOpen';
+          setTimeout(() => {
+            const element = document.getElementById(id);
+            if(element){
+              element.addEventListener('click', (e) => {
+                this.dialogRef.close();
+                this.openDriveProject(value2.id);
+              });
+            }
+          }, 30);
+          return this.sanitizer.bypassSecurityTrustHtml(
+            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>'
+            );
+        },
+        filter: false,
+        sort: false,
+        editable: false,
+        width: '50px',
+      },
+      modifiedTime: {
+        title: '更新日',
+        type: 'string',
+        filter: true,
+        sort: true,
+        width: '120px',
+      },
+      shared: {
+        title: '公開',
+        type: 'string',
+        filter: true,
+        sort: true,
+        width: '80px',
+      }
+    },
+  };
 
 
 }
