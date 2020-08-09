@@ -25,7 +25,7 @@ const routes: Routes = [{
     },
     {
       path: '',
-      redirectTo: 'editors/voiceroid-editor',
+      redirectTo: 'editors/home',
       pathMatch: 'full',
     },
     {

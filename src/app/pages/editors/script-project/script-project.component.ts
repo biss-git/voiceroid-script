@@ -1,14 +1,13 @@
-import { Component, OnInit, OnDestroy, TemplateRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FileInfo, GoogleFileInfo } from '../../../@core/data/file-info';
 import { DownloadService } from '../../../service/download.service';
 import { GoogleApiService } from '../../../service/google-api.service';
 import { UserService } from '../../../@core/mock/users.service';
 import { takeUntil } from 'rxjs/operators';
-import { Subject, Subscriber, Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { NbDialogService, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition } from '@nebular/theme';
 import { ActivatedRoute, Router } from '@angular/router';
-import { environment } from '../../../../environments/environment';
 import { ScriptProjectService } from '../../../service/script-project.service';
 
 @Component({
@@ -53,6 +52,8 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
   queryId: string = ''
   downloadLink: string = '';
 
+  @ViewChild('item', { static: true }) accordion;
+
 
   querySubscription: Subscription;
 
@@ -65,7 +66,8 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     private toastrService: NbToastrService,
     private activatedRoute: ActivatedRoute,
     private projectService: ScriptProjectService,
-    private router: Router) { }
+    private router: Router
+  ) { }
 
   ngOnInit() {
     this.scriptSource = this.projectService.project.scripts;
@@ -81,6 +83,9 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         this.openDriveProject(this.queryId);
         this.queryId = '';
         this.downloadLink = '';
+      }
+      if(this.queryId && !this.userExists){
+        this.accordion.toggle();
       }
     });
     this.refreshState();
@@ -116,8 +121,23 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    * ファイルの読み込み
    * @param files
    */
-  async onFileLoad(files:FileInfo[]){
-    let count = 0;
+  async onProjectLoad(files:FileInfo[]){
+    if(files.length == 1){
+      // 読み込んだファイル数が１つの時だけプロジェクトやその他ファイルを読み込む
+      if(files[0].extension == '.voisproj'){
+        this.loadProject(files[0])
+      }
+      else{
+        this.showToast('warning',files[0].name ,'拡張子が対応していません。');
+      }
+    }
+    else{
+      this.showToast('warning','' ,'１ファイルずつアップロードしてください');
+    }
+    this.refreshTable();
+  }
+
+  async onScriptLoad(files:FileInfo[]){
     files.forEach(file => {
       if(file.extension == '.vois'){
         this.scriptSource.push(file);
@@ -140,32 +160,29 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         this.showToast('success',file.name ,'');
       }
       else{
-        count += 1;
-        if(files.length > 1){
-          this.showToast('warning',file.name ,'拡張子が対応していません。');
-        }
+        this.showToast('warning',file.name ,'拡張子が対応していません。');
       }
     });
-    if(files.length == 1 && count == 1){
-      // 読み込んだファイル数が１つの時だけプロジェクトやその他ファイルを読み込む
-      if(files[0].extension == '.voisproj'){
-        this.loadProject(files[0])
+    this.refreshTable();
+  }
+
+  async onLinkFileLoad(files:FileInfo[]){
+    if(files.length == 1){
+      if(!this.googleAPI.userExists()){
+        this.showToast('warning','' ,'添付ファイルをアップロードするにはGoogleアカウントでログインしてください');
+        return;
       }
-      else {
-        if(!this.googleAPI.userExists()){
-          alert('添付ファイルをアップロードするにはGoogleアカウントでログインしてください');
-          return;
-        }
-        if (window.confirm('「' + files[0].name + '」をGoogle Drive にアップロードして公開しますか？')) {
-          await this.googleAPI.makeNewLinkFile(files[0])
-          this.linkSource.push(files[0]);
-          this.showToast('success','アップロードされました' ,'');
-        } else {
-          return;
-        }
+      if (window.confirm('「' + files[0].name + '」をGoogle Drive にアップロードして公開しますか？')) {
+        await this.googleAPI.makeNewLinkFile(files[0])
+        this.linkSource.push(files[0]);
+        this.showToast('success','アップロードされました' ,'');
+      } else {
+        return;
       }
     }
-
+    else{
+      this.showToast('warning','' ,'１ファイルずつアップロードしてください');
+    }
     this.refreshTable();
   }
 
@@ -423,7 +440,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     },
     columns: {
       name: {
-        title: '・台本ファイル (.vois)',
+        title: '台本ファイル (.vois)',
         type: 'string',
         filter: false,
         sort: false,
@@ -455,14 +472,15 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       download: {
         title: '',
         type: 'html',
-        valuePrepareFunction: (value,value2) => {
-          const id = 'scriptDownload';
+        valuePrepareFunction: (value,value2,value3) => {
+          const number = value3.dataSet.data.indexOf(value2);
+          const id = 'scriptDownload' + number;
           setTimeout(() => {
             const element = document.getElementById(id);
             if(element){
               element.addEventListener('click', (e) => {
-                this.download.downloadText( this.projectService.project.scripts[0].content,
-                  this.projectService.project.scripts[0].name, false, '');
+                this.download.downloadText( this.projectService.project.scripts[number].content,
+                  this.projectService.project.scripts[number].name, false, '');
               });
             }
           }, 30);
@@ -711,7 +729,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     },
     columns: {
       name: {
-        title: '・添付ファイル　.vshpファイルなどのファイルをリンクすることができます',
+        title: '添付ファイル　好きなファイルをリンクすることができます',
         type: 'string',
         filter: false,
         sort: false,

@@ -1,0 +1,32 @@
+<nb-card style="max-height: 75vh; width: 80vw">
+  <nb-card-header>
+    <h4>{{chara.name}}</h4>
+  </nb-card-header>
+  <nb-card-body>
+    <div>
+      <ng-container *ngFor="let src of sources">
+        <img [src]="src" width="80" height="80"
+              style="cursor: pointer; margin: 5px;"
+              (click)="select(src)"/>
+      </ng-container>
+    </div>
+    <div style="margin-top:40px">
+      <h6>画像url</h6>
+      <input nbInput placeholder="URL" [formControl]="url" style="width: 100%;">
+    </div>
+    <div style="margin-top:40px">
+      <h6>プレビュー</h6>
+      <img [src]="url.value" width="100" height="100"/>
+    </div>
+  </nb-card-body>
+  <nb-card-footer>
+    <button nbButton status="success" (click)="submit(url.value)">
+      Submit
+      <nb-icon icon="checkmark-outline"></nb-icon>
+    </button>
+    <button class="cancel" nbButton status="danger" (click)="cancel()">
+      キャンセル
+      <nb-icon icon="close-outline"></nb-icon>
+    </button>
+  </nb-card-footer>
+</nb-card>

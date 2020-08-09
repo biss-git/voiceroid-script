@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { VoisBlock } from '../pages/editors/voiceroid-editor/voiceroid-editor.component';
+import { Character } from '../model/character.model';
 
 @Injectable({
   providedIn: 'root',
@@ -7,47 +9,52 @@ export class CharactorsService {
 
   constructor() { }
 
-  tempData: any = {
+  tempData: {blocks: VoisBlock[]}  = {
     blocks: [
       {
         type: 'paragraph',
         data: {
           id: 0,
-          text: 'ここが台本です。\n自由に編集できます。\n台本データは上部から読込、下部ボタンから保存ができます。'
+          text: 'ここが台本です。\n自由に編集できます。\n台本データは上部から読込、下部ボタンから保存ができます。',
+          name: '',
         }
       },
       {
         type: 'paragraph',
         data: {
           id: 1,
-          text: '「Tabキー」でキャラクタを割り当てられます。'
+          text: '「Tabキー」でキャラクタを割り当てられます。',
+          name: '',
         }
       },
       {
         type: 'paragraph',
         data: {
           id: 2,
-          text: '「キャラクター情報編集」でキャラの名称を変更できます。'
+          text: '「キャラクター情報編集」でキャラの名称を変更できます。',
+          name: '',
         }
       },
       {
         type: 'paragraph',
         data: {
           id: 3,
-          text: '「ボイスロイド２用スクリプト」からボイスロイドに読み上げてもらうテキストを生成できます。'
+          text: '「ボイスロイド２用スクリプト」からボイスロイドに読み上げてもらうテキストを生成できます。',
+          name: '',
         }
       },
       {
         type: 'paragraph',
         data: {
           id: 4,
-          text: '「Altキー」で選択中のブロックのテキストをコピーできます。'
+          text: '「Altキー」で選択中のブロックのテキストをコピーできます。',
+          name: '',
         }
       },
     ]
   };
 
-  characters = [
+  characters: Character[]= [
     { id: 0, show: true, name: '', src: 'assets/images/null.png', isNull:true},
     { id: 1, show: true, name: '琴葉 葵', src: 'https://drive.google.com/uc?export=view&id=1-nc1FWnQv2rxWigCjpQOjobjkLeN2rwi', isNull:false},
     { id: 2, show: true, name: '琴葉 茜', src: 'https://drive.google.com/uc?export=view&id=1yTYoO-xS8rq37j91SjiE0avmF3Phwi58', isNull:false},
@@ -57,5 +64,23 @@ export class CharactorsService {
     { id: 6, show: true, name: 'ついなちゃん（標準語）', src: 'https://drive.google.com/uc?export=view&id=16OLU2rHFrCmYnSa3cQ0yFCjzs5xXtqD8', isNull:false},
     { id: 7, show: true, name: '京町セイカ(v1)', src: 'https://drive.google.com/uc?export=view&id=1HVjoeRGSEeFGWi-IbxNBISTcxfOgZ5UF', isNull:false},
     { id: 8, show: true, name: '東北きりたん', src: 'https://drive.google.com/uc?export=view&id=1ect7RTqdhSrfLOzIv1EIoYHejfNw-6zh', isNull:false},
+  ];
+
+  selectedChara: Character;
+
+  sources: string[] =[
+    'assets/images/null.png',
+    'https://drive.google.com/uc?export=view&id=1-nc1FWnQv2rxWigCjpQOjobjkLeN2rwi',
+    'https://drive.google.com/uc?export=view&id=1yTYoO-xS8rq37j91SjiE0avmF3Phwi58',
+    'https://drive.google.com/uc?export=view&id=1rwRf-uWscQ1miba3YDq6wL5CI2Mr2oAq',
+    'https://drive.google.com/uc?export=view&id=1XzudWgamS905WSjVn3N4-rpfIRMnFEZ_',
+    'https://drive.google.com/uc?export=view&id=1Ph06uTW_41pcqFON9nCdebJLfGtBMqOc',
+    'https://drive.google.com/uc?export=view&id=16OLU2rHFrCmYnSa3cQ0yFCjzs5xXtqD8',
+    'https://drive.google.com/uc?export=view&id=1HVjoeRGSEeFGWi-IbxNBISTcxfOgZ5UF',
+    'https://drive.google.com/uc?export=view&id=1ect7RTqdhSrfLOzIv1EIoYHejfNw-6zh',
+    'https://drive.google.com/uc?export=view&id=1-F2M5DmtsCgx0H28zgAEHVTYKj2ot_Vd',
+    'https://drive.google.com/uc?export=view&id=1GNteAHw-RrSx5VsYNuaR-x9DXcAcvXi2',
+    'https://drive.google.com/uc?export=view&id=1exN8FhwFTvm_ztJEZK5luzSm131GWcTU',
+    'https://drive.google.com/uc?export=view&id=1hKlQWVDDUWEg-jfduuCNLopqsStEgmrs',
   ];
 }

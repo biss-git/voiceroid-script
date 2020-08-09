@@ -2,11 +2,23 @@ import { NbMenuItem } from '@nebular/theme';
 import { environment } from '../../environments/environment';
 
 export const MENU_ITEMS: NbMenuItem[] = [
+
+  {
+    title: 'ホーム',
+    icon: 'home-outline',
+    link: '/pages/editors/home',
+    home: true,
+  },
+
+  {
+    title: '調声',
+    group: true,
+  },
+
   {
     title: 'プロジェクト',
-    icon: 'book-open-outline',
+    icon: 'folder-outline',
     link: '/pages/editors/script-project',
-    home: true,
   },
   {
     title: '台本編集',
@@ -15,15 +27,15 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   {
     title: 'フレーズ辞書',
-    icon: 'options-2-outline',
+    icon: 'book-open-outline',
     link: '/pages/charts/PhraseDictionary',
-    home: true,
   },
+
+
   {
     title: 'サンドボックス',
     icon: 'pie-chart-outline',
     link: '/pages/editors/sandbox',
-    home: true,
     hidden: environment.sandboxHidden,
   },
 

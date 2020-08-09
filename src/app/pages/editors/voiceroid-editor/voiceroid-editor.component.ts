@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, OnDestroy, ChangeDetectorRef, OnInit } from '@angular/core';
 import EditorJS from '@editorjs/editorjs';
-import { NbThemeService, NbTable, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition } from '@nebular/theme';
+import { NbThemeService, NbTable, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition, NbDialogService } from '@nebular/theme';
 import { FileloadService } from '../../../service/fileload.service';
 import { DownloadService } from '../../../service/download.service';
 import { CharactorsService } from '../../../service/charactors.service';
@@ -11,6 +11,8 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ScriptProjectService } from '../../../service/script-project.service';
 import { Route } from '@angular/compiler/src/core';
+import { ImageSourceDialogComponent } from './image-source-dialog/image-source-dialog.component';
+import { Character } from '../../../model/character.model';
 
 @Component({
   selector: 'ngx-voiceroid-editor',
@@ -18,12 +20,12 @@ import { Route } from '@angular/compiler/src/core';
   styleUrls: ['./voiceroid-editor.component.scss'],
 })
 export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestroy {
-
   constructor(
     private theme: NbThemeService,
     private download: DownloadService,
     private charaService: CharactorsService,
     private sanitizer: DomSanitizer,
+    private dialogService: NbDialogService,
     private toastrService: NbToastrService,
     private activatedRoute: ActivatedRoute,
     private projectService: ScriptProjectService) { }
@@ -181,13 +183,32 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
       src: {
         title: '画像',
         type: 'html',
-        valuePrepareFunction: (value,value2) => {
+        valuePrepareFunction: (value,value2,value3) => {
+          const number = value3.dataSet.data.indexOf(value2);
+          const id = 'imageSource' + number;
+          setTimeout(() => {
+            const element = document.getElementById(id);
+            if(element){
+              element.addEventListener('click', (e) => {
+                this.charaService.selectedChara = this.charaService.characters[number];
+                this.dialogService.open(ImageSourceDialogComponent)
+                .onClose.subscribe(
+                  url =>{
+                    if(url){
+                      this.charaService.selectedChara.src = url;
+                      this.refreshTable();
+                    }
+                  });
+              });
+            }
+          }, 30);
           return this.sanitizer.bypassSecurityTrustHtml(
-            '<img src="' + value2.src + '" alt="画像" width="50px" height="50px"/>'
+            '<img id="' + id  + '" src="' + value2.src + '" style="cursor: pointer;" alt="画像" width="50px" height="50px"/>'
             );
         },
         filter: false,
         sort: false,
+        editable: false,
         width: '50px',
       },
       name: {
@@ -298,7 +319,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     if(this.editor){
       this.editor.save().then(
         data => {
-          this.charaService.tempData = data;
+          this.charaService.tempData = data as any;
         },
       );
     }
@@ -334,6 +355,8 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
 
           VoiceroidEditorPlugin.characters = this.characters;
 
+          this.checkCharaBlocks(data.blocks as any);
+
           this.config.data = data;
           this.editor.destroy();
           this.editor = new EditorJS(this.config);
@@ -342,29 +365,61 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     }
   }
 
-  onFileLoad(files: FileInfo[]){
-    let data;
-    if (files[0].extension == '.vois'){
-      data = JSON.parse(files[0].content);
-    }
-    else if(files[0].extension == '.vcha'){
-      this.charaService.characters = JSON.parse(files[0].content);
-      this.characters = this.charaService.characters;
-      this.refresh();
-      if(!this.isBusy){
-        setTimeout(() => {
-          const target = document.getElementById('characterList');
-          target.scrollIntoView();
-        }, 1000);
+  checkCharaBlocks(blocks: VoisBlock[]){
+    blocks.forEach( b =>{
+      const text = b.data.text;
+      if(text.includes("＞")){
+        const pos = text.indexOf("＞");
+        const name = text.slice(0, pos);
+        const index = this.characters.findIndex(c => c.name == name);
+        if(index >= 0){
+          b.data.id = this.characters[index].id;
+          b.data.text = text.slice(pos + 1);
+        }
       }
-      return;
-    }
-    else if(files[0].extension == '.txt'){
-      data = this.TabTextToBlocks(files[0].content);
+    });
+  }
+
+  async onFileLoad(files: FileInfo[]){
+    let data;
+
+    if(files.length==1){
+      if (files[0].extension == '.vois'){
+        data = JSON.parse(files[0].content);
+        this.showToast('primary', files[0].name, '');
+      }
+      else if(files[0].extension == '.vcha'){
+        this.charaService.characters = JSON.parse(files[0].content);
+        this.characters = this.charaService.characters;
+        this.refresh();
+        if(!this.isBusy){
+          setTimeout(() => {
+            const target = document.getElementById('characterList');
+            target.scrollIntoView();
+          }, 1000);
+        }
+        this.showToast('primary', files[0].name, '');
+        return;
+      }
+      else if(files[0].extension == '.txt'){
+        const blocks = this.TabTextToBlocks(files[0].content);
+        this.checkCharaBlocks(blocks);
+        data = await this.addBlocks(blocks);;
+        this.showToast('primary', files[0].name, '');
+      }
+      else{
+        this.showToast('warning', files[0].name, '未対応の拡張子');
+        return;
+      }
     }
     else{
-      return;
+      files = files.sort((a,b) => a.name.localeCompare(b.name)).filter( f => (f.extension=='.txt'));
+      const blocks = this.TextFilesToBlocks(files);
+      this.checkCharaBlocks(blocks);
+      data = await this.addBlocks(blocks);
+      this.showToast('primary', files.length + ' ファイル読み込まれました', '');
     }
+
     this.config.data = data;
     if(this.editor){
       this.editor.destroy();
@@ -373,8 +428,8 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   // タブ付き文字をeditor に対応した形式に直す
-  private TabTextToBlocks(text: string): any{
-    const blocks = [];
+  private TabTextToBlocks(text: string): VoisBlock[]{
+    const blocks: VoisBlock[] = [];
     const lines = text.split(/\r\n|\r|\n/);
     lines.forEach((line) => {
       let id = 0;
@@ -388,10 +443,43 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         'data': {
           'id': id,
           'text': line,
+          'name': '',
         },
-      });
+      } as VoisBlock);
     });
-    return {blocks};
+    return blocks;
+  }
+
+  private TextFilesToBlocks(files: FileInfo[]): VoisBlock[]{
+    const blocks = [];
+    files.forEach((f) => {
+      let id = 0;
+      blocks.push({
+        'type': 'paragraph',
+        'data': {
+          'id': id,
+          'text': f.content as string,
+          'name': f.name
+        },
+      } as VoisBlock);
+    });
+    return blocks;
+  }
+
+  private async addBlocks(blocks: VoisBlock[]): Promise<{blocks: VoisBlock[]}>{
+    let newData = {blocks: []};
+
+    await this.editor.save().then(
+      data => {
+        newData.blocks = data.blocks;
+      },
+    );
+
+    blocks.forEach( b => {
+      newData.blocks.push(b);
+    })
+
+    return newData;
   }
 
   // 台本ファイルを保存
@@ -419,7 +507,8 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
           script += block.data['text'];
           script += '\r\n';
         });
-        this.download.downloadText(script, '台本', true, '.txt');
+
+        this.download.downloadText(script, '台本', true, '.txt', true);
       },
     );
   }
@@ -459,12 +548,13 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     }
     event.newData.show = true;
     event.confirm.resolve(event.newData);
+    event.newData.src = 'assets/images/null.png';
     setTimeout(() => {
       this.characters = event.source.data;
       const temp = this.characters.shift();
       this.characters.splice(1,0,temp);
       this.refreshTable();
-    }, 10);
+    }, 100);
   }
 
   // キャラクターを編集
@@ -575,6 +665,10 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     }
   }
 
+  clearScript(){
+    this.script = '';
+  }
+
   private showToast(type: NbComponentStatus, title: string, body: string) {
 
     const config = {
@@ -612,8 +706,8 @@ class VoiceroidEditorPlugin {
   static bgColor = '#ffff00';
   static textColor = '#0000ff';
 
-  static characters = [
-    { id: 0, name: '', src: '', isNull: true}
+  static characters: Character[] = [
+    { id: 0, show: true, name: '', src: '', isNull: true}
   ];
 
 
@@ -628,6 +722,7 @@ class VoiceroidEditorPlugin {
   static tempText: string = '';
 
   private api: API;
+  private name: string = '';
 
 
   constructor({data, config, api}) {
@@ -646,6 +741,9 @@ class VoiceroidEditorPlugin {
           break;
         }
       }
+    }
+    if (data.name){
+      this.name = data.name;
     }
   }
 
@@ -807,6 +905,14 @@ class VoiceroidEditorPlugin {
       }, 500);
     }
 
+    // F2 で名称変更
+    if(e.key === 'F2'){
+      const result = window.prompt('ブロックのファイル名を入力', this.name);
+      if(result){
+        this.name = result;
+      }
+    }
+
     this.resizeTextArea();
 
     /*
@@ -825,6 +931,7 @@ class VoiceroidEditorPlugin {
     return {
       id: this.id,
       text: this.textInput.value,
+      name: this.name,
     };
   }
 
@@ -876,4 +983,14 @@ class VoiceroidEditorPlugin {
     this.api.tooltip.hide();
   }
 
+}
+
+
+export class VoisBlock{
+  type: string;
+  data: {
+    id: number,
+    text: string,
+    name: string
+  };
 }

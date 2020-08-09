@@ -12,8 +12,12 @@ export class DropAreaComponent implements OnInit, OnDestroy {
 
   @Input() text: string = '';
   @Input() type: string = 'UTF-8';
+  @Input() selectVisible: boolean = false;
 
   @Output() fileLoad = new EventEmitter<FileInfo[]>();
+
+  encoding: string = '';
+
 
   private files:FileInfo[] = [];
 
@@ -76,7 +80,10 @@ export class DropAreaComponent implements OnInit, OnDestroy {
 
 
   private readFile(file, isFinal:boolean){
-    const extention: string = this.fileload.getExtension(file.name);
+    let extention: string = this.fileload.getExtension(file.name);
+    if (this.type == 'bin'){
+      extention = '';
+    }
     switch(extention){
       case '.txt':
       case '.pdic':
@@ -85,20 +92,30 @@ export class DropAreaComponent implements OnInit, OnDestroy {
       case '.vpc':
       case '.settings':
       case '.voisproj':
-      this.fileload.fileToText(file, this.type=="SJIS" || extention==".pdic")
-      .then(text => {
-        const fileInfo: FileInfo = {
-          name: file.name,
-          extension: this.fileload.getExtension(file.name),
-          content: text,
+        let isSJIS = false;
+        if(extention == '.pdic'){
+          isSJIS = true;
         }
-        this.files.push(fileInfo);
-        if(isFinal){
-          this.fileLoad.emit(this.files);
+        if(extention == '.txt'){
+          isSJIS = (this.encoding == "" && this.type=="SJIS") ||
+                   (this.encoding == 'sjis')
         }
-      })
-      .catch(err => console.log(err));
-      break;
+        this.fileload.fileToText(file, isSJIS)
+        .then(text => {
+          const fileInfo: FileInfo = {
+            name: file.name,
+            extension: this.fileload.getExtension(file.name),
+            content: text,
+          }
+          this.files.push(fileInfo);
+          if(isFinal){
+            setTimeout(() => {
+              this.fileLoad.emit(this.files);
+            }, 100);
+          }
+        })
+        .catch(err => console.log(err));
+        break;
       default:
         this.fileload.fileToArrayBuffer(file)
         .then(bitArray => {

@@ -6,7 +6,7 @@
     <h4>台本の読込</h4>
   </nb-card-header>
   <nb-card-body>
-    <ngx-drop-area (fileLoad)="onFileLoad($event)" text="台本(.txt, .vois)、キャラクター情報(.vcha)" type="UTF-8"></ngx-drop-area>
+    <ngx-drop-area (fileLoad)="onFileLoad($event)" text="台本(.txt, .vois)、キャラクター情報(.vcha)" type="SJIS" [selectVisible]="true"></ngx-drop-area>
   </nb-card-body>
 </nb-card>
 
@@ -30,6 +30,52 @@
   </nb-card-header>
   <nb-card-body>
     <div [id]="id" style="height: 65vh;"></div>
+  </nb-card-body>
+</nb-card>
+
+<nb-card>
+  <nb-card-header>
+    <h4>
+      ボイスロイド２用スクリプト
+    </h4>
+  </nb-card-header>
+  <nb-card-body>
+    <span style="display: inline-block; width: 90px;">キャラ名</span>
+    <nb-select [(ngModel)]="charaNameType" style="width: 148px;">
+      <nb-option value="no use">つけない</nb-option>
+      <nb-option value="use">つける</nb-option>
+      <nb-option value="all">すべてにつける</nb-option>
+    </nb-select>
+    <div style="display: flex; align-items: center; justify-content: flex-start; margin: 10px 0 10px 0;">
+      <span style="display: inline-block; width: 90px;">区切り</span>
+      <nb-toggle [(checked)]="breakBar"></nb-toggle>
+    </div>
+    <ng-container *ngIf="breakBar">
+      <span style="margin-left: 20px; display: inline-block; width: 90px;">区切る単位</span>
+      <nb-select [(ngModel)]="breakType" style="width: 108px;">
+        <nb-option value="enter">行</nb-option>
+        <nb-option value="block">ブロック</nb-option>
+      </nb-select>
+      <br>
+      <span style="margin-left: 20px; display: inline-block; width: 90px;">区切り文字</span>
+      <input type="text" [(ngModel)]="breakChara" [style.background]="bgColor" [style.color]="textColor" style="margin:10px 0 10px 0; width: 108px"/>
+      <br>
+    </ng-container>
+    <div style="margin: 20px 0 0 0">
+      <button nbButton outline (click)="generateScript()">
+        生成
+        <nb-icon icon="text-outline"></nb-icon>
+      </button>
+      <button nbButton outline (click)="copyScript()">
+        クリップボードにコピー
+        <nb-icon icon="copy-outline"></nb-icon>
+      </button>
+      <button nbButton outline (click)="clearScript()">
+        クリア
+        <nb-icon icon="square-outline"></nb-icon>
+      </button>
+    </div>
+    <pre id="scriptElement" [style.color]="textColor" style="max-height: 65vh; margin-top:25px; margin-left:10px;">{{script}}</pre>
   </nb-card-body>
 </nb-card>
 
@@ -82,46 +128,3 @@
     </button>
   </nb-card-body>
 </nb-card>
-
-<nb-card>
-  <nb-card-header>
-    <h4>
-      ボイスロイド２用スクリプト
-    </h4>
-  </nb-card-header>
-  <nb-card-body>
-    <span style="display: inline-block; width: 90px;">キャラ名</span>
-    <nb-select [(ngModel)]="charaNameType" style="width: 148px;">
-      <nb-option value="no use">つけない</nb-option>
-      <nb-option value="use">つける</nb-option>
-      <nb-option value="all">すべてにつける</nb-option>
-    </nb-select>
-    <div style="display: flex; align-items: center; justify-content: flex-start; margin: 10px 0 10px 0;">
-      <span style="display: inline-block; width: 90px;">区切り</span>
-      <nb-toggle [(checked)]="breakBar"></nb-toggle>
-    </div>
-    <ng-container *ngIf="breakBar">
-      <span style="margin-left: 20px; display: inline-block; width: 90px;">区切る単位</span>
-      <nb-select [(ngModel)]="breakType" style="width: 108px;">
-        <nb-option value="enter">行</nb-option>
-        <nb-option value="block">ブロック</nb-option>
-      </nb-select>
-      <br>
-      <span style="margin-left: 20px; display: inline-block; width: 90px;">区切り文字</span>
-      <input type="text" [(ngModel)]="breakChara" [style.background]="bgColor" [style.color]="textColor" style="margin:10px 0 10px 0; width: 108px"/>
-      <br>
-    </ng-container>
-    <div style="margin: 20px 0 0 0">
-      <button nbButton outline (click)="generateScript()">
-        生成
-        <nb-icon icon="text-outline"></nb-icon>
-      </button>
-      <button nbButton outline (click)="copyScript()">
-        クリップボードにコピー
-        <nb-icon icon="copy-outline"></nb-icon>
-      </button>
-    </div>
-    <pre id="scriptElement" [style.color]="textColor" style="max-height: 65vh; margin-top:25px; margin-left:10px;">{{script}}</pre>
-  </nb-card-body>
-</nb-card>
-

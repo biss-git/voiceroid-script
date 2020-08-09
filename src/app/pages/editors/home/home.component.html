@@ -1,0 +1,58 @@
+<h2>
+  ホーム
+</h2>
+
+<p>
+  本Webアプリケーションはボイスロイド２エディタでの作業をサポートするものです。<br>
+  scriptとは台本という意味ですが、本アプリの対象とするscriptは<br>
+  ボイロ動画の台詞、歌ボの歌詞、シンプルな受け答え、ネット小説やノベルゲームの文章などが含まれます。
+</p>
+
+
+<nb-card>
+  <nb-card-header>
+    <h4>
+      調声
+    </h4>
+  </nb-card-header>
+
+  <nb-card-body>
+
+    <div class="item-block">
+      <a [href]="['/#/pages/editors/script-project']">
+        <h5>
+          <nb-icon icon="folder-outline"></nb-icon>
+          プロジェクト
+        </h5>
+      </a>
+      <p class="direction-block">
+        ボイスロイド２エディタの調声データをgoogleドライブを利用して保存・公開することができます。<br>
+      </p>
+    </div>
+    <div class="item-block">
+      <a [href]="['/#/pages/editors/voiceroid-editor']">
+        <h5>
+          <nb-icon icon="text-outline"></nb-icon>
+          台本編集
+        </h5>
+      </a>
+      <p class="direction-block">
+        ボイスロイド２エディタで使用するための台本データの作成・編集・保存ができます。<br>
+        主に台本にキャラクター情報を結びつけるために使用します。
+      </p>
+    </div>
+    <div class="item-block">
+      <a [href]="['/#/pages/charts/PhraseDictionary']">
+        <h5>
+          <nb-icon icon="book-open-outline"></nb-icon>
+          フレーズ辞書
+        </h5>
+      </a>
+      <p class="direction-block">
+        ボイスロイド２エディタのフレーズ辞書をグラフ表示します。<br>
+        音量、話速、高さ、抑揚を同時に表示させたいときに使用できます。
+      </p>
+    </div>
+
+  </nb-card-body>
+</nb-card>

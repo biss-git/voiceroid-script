@@ -104,18 +104,16 @@ export class GoogleApiService {
 
   // ユーザー情報の取得
   private async getUserInfo(): Promise<void> {
-    if(true)
-    {
-      const params = {
-        fields: "user",
-      };
-      const url = 'https://www.googleapis.com/drive/v3/about';
-      await this.http.get(url, {'headers': this.getHeader(),params}).toPromise().then((data)=>{
-        this.user = data['user'];
-        this.userService.changeUser(this.user);
-      })
-      .catch(error => console.log('ユーザー情報の取得に失敗しました'));
-    }
+    console.log('getUser');
+    const params = {
+      fields: "user",
+    };
+    const url = 'https://www.googleapis.com/drive/v3/about';
+    await this.http.get(url, {'headers': this.getHeader(),params}).toPromise().then((data)=>{
+      this.user = data['user'];
+      this.userService.changeUser(this.user);
+    })
+    .catch(error => console.log('ユーザー情報の取得に失敗しました'));
   }
 
   // httpヘッダ

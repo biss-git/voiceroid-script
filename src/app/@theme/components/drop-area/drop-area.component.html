@@ -2,6 +2,13 @@
   <p class="drop-zone">
     {{text}}をここにドラッグ&ドロップ<br>
     または<br>
-    <input type="file" (change)="onChangeInput($event)">
+    <input type="file" (change)="onChangeInput($event)"><br>
   </p>
+  <mat-button-toggle-group name="fontStyle" aria-label="Font Style" style="float: right;" (change)="encoding=$event.value" value="" [hidden]="!selectVisible"
+      nbTooltip="文字化けする場合に変更してください" nbTooltipPlacement="bottom">
+    <mat-button-toggle value="" selected>Auto</mat-button-toggle>
+    <mat-button-toggle value="utf8">UTF-8</mat-button-toggle>
+    <mat-button-toggle value="sjis">SJIS</mat-button-toggle>
+  </mat-button-toggle-group>
 </div>
+

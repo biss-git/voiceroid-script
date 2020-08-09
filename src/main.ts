@@ -1,3 +1,4 @@
+import 'hammerjs';
 /**
  * @license
  * Copyright Akveo. All Rights Reserved.

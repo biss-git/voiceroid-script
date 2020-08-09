@@ -4,7 +4,7 @@
 
 <p>
   ボイスロイド２の調声データをプロジェクトにまとめて Googleドライブ に保存したり、Web上に公開したりできます。<br>
-  注意：このページで扱うデータは Googleドライブ 上にアップロードされ公開される可能性があるので著作権や個人情報には十分注意してください。
+  注意：このページで扱うデータは Googleドライブ 上にアップロードされ公開されるので、著作権や個人情報には十分注意してください。
 </p>
 
 <!--ログインしていないとき-->
@@ -15,35 +15,39 @@
 </ng-container>
 
 <nb-card>
-  <nb-card-header>
-    <h4>ファイルの読込</h4>
-  </nb-card-header>
-  <nb-card-body>
-    <ng-container *ngIf="userExists">
-      <h5>Googleドライブ から読込</h5>
-      <button nbButton outline (click)='openDriveProjects(dialog)'>
-        Googleドライブからプロジェクトを開く
-        <nb-icon icon="list-outline"></nb-icon>
-      </button>
-      <br>
-      <br>
-    </ng-container>
+  <nb-accordion>
+    <nb-accordion-item #item>
+      <nb-accordion-item-header>
+        <h4>プロジェクトの読込</h4>
+      </nb-accordion-item-header>
+      <nb-accordion-item-body>
 
-    <ng-container *ngIf="queryId">
-      <h5>Googleドライブ からダウンロード id = {{queryId}}</h5>
-      <a [href]="downloadLink">
-        <button nbButton outline>
-          Googleドライブからプロジェクトをダウンロード
-          <nb-icon icon="download-outline"></nb-icon>
-        </button>
-      </a>
-      <br>
-      <br>
-    </ng-container>
+        <div *ngIf="userExists">
+          <h5>Googleドライブ から読込</h5>
+          <button nbButton outline (click)='openDriveProjects(dialog)'>
+            Googleドライブからプロジェクトを開く
+            <nb-icon icon="list-outline"></nb-icon>
+          </button>
+        </div>
 
-    <h5>自分のPC から読込</h5>
-    <ngx-drop-area (fileLoad)="onFileLoad($event)" text="色々な調声データファイル" type="UTF-8"></ngx-drop-area>
-  </nb-card-body>
+        <div *ngIf="queryId">
+          <h5>Googleドライブ からダウンロード</h5>
+          <a [href]="downloadLink">
+            <button nbButton outline>
+              Googleドライブからプロジェクトをダウンロード
+              <nb-icon icon="download-outline"></nb-icon>
+            </button>
+          </a>
+        </div>
+
+        <h5 style="margin-top: 50px;">
+          自分のPC から読込
+        </h5>
+        <ngx-drop-area (fileLoad)="onProjectLoad($event)" text="プロジェクトファイル(.voisproj)" type="UTF-8"></ngx-drop-area>
+
+      </nb-accordion-item-body>
+    </nb-accordion-item>
+  </nb-accordion>
 </nb-card>
 
 <nb-card>
@@ -57,21 +61,76 @@
       </button>
     </h4>
   </nb-card-header>
-  <ng2-smart-table [settings]="scriptSettings" [source]="scriptSource" (deleteConfirm)="onDeleteConfirm($event,'script')"></ng2-smart-table>
-  <ng2-smart-table [settings]="characterSettings" [source]="characterSource" (deleteConfirm)="onDeleteConfirm($event,'character')"></ng2-smart-table>
-  <ng2-smart-table [settings]="phraseSettings" [source]="phraseSource" (deleteConfirm)="onDeleteConfirm($event,'phrase')"></ng2-smart-table>
-  <ng2-smart-table [settings]="presetSettings" [source]="presetSource" (deleteConfirm)="onDeleteConfirm($event,'preset')"></ng2-smart-table>
-  <ng2-smart-table [settings]="settingSettings" [source]="settingSource" (deleteConfirm)="onDeleteConfirm($event,'setting')"></ng2-smart-table>
-  <ng2-smart-table [settings]="linkSettings" [source]="linkSource" (deleteConfirm)="onDeleteConfirm($event,'link')"></ng2-smart-table>
+
+  <nb-card-body>
+
+    <h5>
+      ファイル読み込み
+    </h5>
+    <ngx-drop-area *ngIf="!driveProject || myDriveProject"
+      (fileLoad)="onScriptLoad($event)" text=".vois、.vcha、.pdic、.vpc、.settings" type="UTF-8"></ngx-drop-area>
+
+    <h5 style="margin-top: 50px;">
+      <nb-icon icon="text-outline"></nb-icon>
+      台本ファイル
+    </h5>
+    <ng2-smart-table [settings]="scriptSettings" [source]="scriptSource" (deleteConfirm)="onDeleteConfirm($event,'script')"></ng2-smart-table>
+    <!-- <ng2-smart-table [settings]="characterSettings" [source]="characterSource" (deleteConfirm)="onDeleteConfirm($event,'character')"></ng2-smart-table> -->
+    <div class="file-block">
+      <span class="file-type">キャラクター情報(.vcha)</span>
+      <span class="file-name">ファイル名.vcha</span>
+      <nb-icon icon="trash-2-outline" class="action-icon"></nb-icon>
+      <nb-icon icon="download-outline" class="action-icon"></nb-icon>
+    </div>
+
+    <h5 style="margin-top: 50px;">
+      <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><defs><style></style></defs><g id="Layer_2" data-name="Layer 2"><g id="smiling-face"><g id="smiling-face" data-name="smiling-face"><rect width="24" height="24" opacity="0"/><path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm5 9a5 5 0 0 1-10 0z" id="🎨-Icon-Сolor"/></g></g></g></svg>
+      ボイスロイド２エディタ
+    </h5>
+    <div class="file-block">
+      <span class="file-type">フレーズ辞書(.pdic)</span>
+      <span class="file-name">ファイル名.pdic</span>
+      <nb-icon icon="trash-2-outline" class="action-icon"></nb-icon>
+      <nb-icon icon="download-outline" class="action-icon"></nb-icon>
+      <nb-icon icon="book-open-outline" class="action-icon"></nb-icon>
+    </div>
+    <div class="file-block">
+      <span class="file-type">ボイスプリセット(.vpc)</span>
+      <span class="file-name">ファイル名.vpc</span>
+      <nb-icon icon="trash-2-outline" class="action-icon"></nb-icon>
+      <nb-icon icon="download-outline" class="action-icon"></nb-icon>
+    </div>
+    <div class="file-block">
+      <span class="file-type">設定ファイル(.settings)</span>
+      <span class="file-name">ファイル名.settings</span>
+      <nb-icon icon="trash-2-outline" class="action-icon"></nb-icon>
+      <nb-icon icon="download-outline" class="action-icon"></nb-icon>
+    </div>
+    <!-- <ng2-smart-table [settings]="phraseSettings" [source]="phraseSource" (deleteConfirm)="onDeleteConfirm($event,'phrase')"></ng2-smart-table>
+    <ng2-smart-table [settings]="presetSettings" [source]="presetSource" (deleteConfirm)="onDeleteConfirm($event,'preset')"></ng2-smart-table>
+    <ng2-smart-table [settings]="settingSettings" [source]="settingSource" (deleteConfirm)="onDeleteConfirm($event,'setting')"></ng2-smart-table> -->
+
+    <ng-container *ngIf="userExists">
+      <h5 style="margin-top: 50px;">
+        <nb-icon icon="attach-outline"></nb-icon>
+        添付ファイル
+      </h5>
+      <ngx-drop-area *ngIf="!driveProject || myDriveProject"
+        (fileLoad)="onLinkFileLoad($event)" text="色々なファイル" type="bin"></ngx-drop-area>
+      <ng2-smart-table [settings]="linkSettings" [source]="linkSource" (deleteConfirm)="onDeleteConfirm($event,'link')"></ng2-smart-table>
+    </ng-container>
+  </nb-card-body>
 </nb-card>
 
 <nb-card>
   <nb-card-header>
-    <h4>プロジェクトの保存</h4>
+    <h4>プロジェクトの保存・公開</h4>
   </nb-card-header>
   <nb-card-body>
-    <ng-container *ngIf="userExists && (!driveProject || myDriveProject)">
-      <h5>Googleドライブ に保存</h5>
+    <div *ngIf="userExists && (!driveProject || myDriveProject)"  style="margin-bottom: 50px;">
+      <h5>
+        Googleドライブ に保存
+      </h5>
       <button nbButton outline (click)="makeDriveProject()" *ngIf="!driveProject">
         プロジェクトの作成
         <nb-icon icon="plus-square-outline"></nb-icon>
@@ -103,10 +162,11 @@
           </button>
         </div>
       </div>
-      <br>
-    </ng-container>
+    </div>
 
-    <h5>自分のPC に保存</h5>
+    <h5>
+      自分のPC に保存
+    </h5>
     <button nbButton outline (click)="saveProject()">
       プロジェクトファイルのダウンロード (.voisproj)
       <nb-icon icon="download-outline"></nb-icon>

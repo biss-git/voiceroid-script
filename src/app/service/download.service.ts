@@ -58,8 +58,13 @@ export class DownloadService {
    * @param withDate 保存ファイル名に日付を追加するかどうか
    * @param extension 拡張子　".txt" みたいな感じ
    */
-  downloadText(text: string, filename: string, withDate: boolean, extension: string){
-    const blob = new Blob([text], {type: 'text/plain'});
+  downloadText(text: string, filename: string, withDate: boolean, extension: string, isSJIS: boolean = false){
+    let blob: Blob;
+    if(isSJIS){
+      blob = new Blob([this.toShiftJIS(text)], {type: 'text/plain'});
+    }else{
+      blob  = new Blob([text], {type: 'text/plain'});
+    }
     const url = URL.createObjectURL(blob);
     this.download(url, filename, withDate, extension);
     URL.revokeObjectURL(url);

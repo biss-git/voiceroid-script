@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import Encoding from 'encoding-japanese';
 
 @Injectable({
   providedIn: 'root',
@@ -7,7 +8,7 @@ export class FileloadService {
 
   constructor() { }
 
-  fileToText(file, isSJIS: boolean): Promise<string> {
+  async fileToText(file, isSJIS: boolean): Promise<string> {
     const reader = new FileReader();
     if (isSJIS){
       reader.readAsText(file, 'Shift_JIS');
