@@ -6,7 +6,7 @@ import { GoogleApiService } from '../../../service/google-api.service';
 import { UserService } from '../../../@core/mock/users.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject, Subscription } from 'rxjs';
-import { NbDialogService, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition, NbDialogRef } from '@nebular/theme';
+import { NbDialogService, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition, NbDialogRef, NbAccordionItemComponent } from '@nebular/theme';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScriptProjectService } from '../../../service/script-project.service';
 
@@ -50,7 +50,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
   queryId: string = '';
   downloadLink: string = '';
 
-  @ViewChild('item', { static: true }) accordion;
+  @ViewChild('item', { static: true }) accordion: NbAccordionItemComponent;
 
 
   querySubscription: Subscription;
@@ -73,15 +73,11 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     this.scriptSource = this.projectService.project.scripts;
     this.linkSource = this.projectService.project.fileLinks;
 
-    this.userService.userChange.pipe(takeUntil(this.destroy$)).subscribe((user: any) => {
+    this.userService.userChange.pipe(takeUntil(this.destroy$)).subscribe( async (user: any) => {
       this.refreshState();
       if (this.queryId && this.userExists){
-        this.openDriveProject(this.queryId);
-        this.queryId = '';
-        this.downloadLink = '';
-      }
-      if (this.queryId && !this.userExists){
-        this.accordion.toggle();
+        await this.openDriveProject(this.queryId);
+        this.accordion.close();
       }
     });
     this.refreshState();
@@ -91,6 +87,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         if (params.id){
           this.queryId = params.id;
           this.downloadLink = 'https://drive.google.com/uc?id=' + this.queryId;
+          this.accordion.open();
         }
       },
     );
@@ -110,6 +107,13 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     this.projectName = this.googleAPI.getProjectName();
     this.share = this.googleAPI.isShared();
     this.projectShareLink = this.googleAPI.shareLink();
+
+    // console.log('userExists', this.userExists);
+    // console.log('driveProject', this.driveProject);
+    // console.log('myDriveProject', this.myDriveProject);
+    // console.log('projectName', this.projectName);
+    // console.log('share', this.share);
+    // console.log('projectShareLink', this.projectShareLink);
   }
 
 
@@ -121,6 +125,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     if (files.length == 1){
       // 読み込んだファイル数が１つの時だけプロジェクトやその他ファイルを読み込む
       if (files[0].extension == '.voisproj'){
+        this.clearProject();
         this.loadProject(files[0]);
       }
       else{
@@ -200,6 +205,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    */
   async openDriveProject(id: string): Promise<void>{
     if (id){
+      this.clearProject(true);
       const file = await this.googleAPI.getProject(id);
       this.loadProject(file);
     }
@@ -212,7 +218,6 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    * @param file
    */
   loadProject(file: FileInfo): void{
-    this.clearProject(true);
     if (file && file.extension == '.voisproj'){
       let project: any;
       if (typeof(file.content) == 'string'){
@@ -299,7 +304,6 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
             this.projectService.project.settings = null;
             break;
         }
-        console.log(this.projectService.project);
       }
     }
   }
@@ -584,9 +588,9 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       download: {
         title: '開く',
         type: 'html',
-        valuePrepareFunction: (value, value2) => {
-          console.log(value2);
-          const id = 'driveProjectOpen';
+        valuePrepareFunction: (value, value2, value3) => {
+          const number = value3.dataSet.data.indexOf(value2);
+          const id = 'driveProjectOpen' + number;
           setTimeout(() => {
             const element = document.getElementById(id);
             if (element){

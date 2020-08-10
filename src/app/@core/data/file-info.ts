@@ -6,6 +6,7 @@ export interface FileInfo {
 
 export interface GoogleFileInfo extends FileInfo {
   id: string;
+  ownedByMe: boolean;
   permissions: PermissionInfo[];
   modifiedTime?: string;
   shared?: string;
@@ -15,7 +16,7 @@ export interface PermissionInfo {
   id: string;
   type: string;
   role: string;
-  targetId: string;
+  targetId?: string;
 }
 
 export interface UserInfo {

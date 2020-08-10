@@ -14,6 +14,25 @@
   </p>
 </ng-container>
 
+<!--ログインしているとき-->
+<ng-container *ngIf="userExists">
+  <p>
+    ログインしています。<br>
+    <ng-container *ngIf="driveProject">
+      <span>
+        ドライブからプロジェクトを開いています。
+      </span>
+      <ng-container *ngIf="myDriveProject">
+        （自分のドライブ）
+      </ng-container>
+      <ng-container *ngIf="!myDriveProject">
+        （自分のではないドライブ）
+      </ng-container>
+    </ng-container>
+  </p>
+</ng-container>
+
+
 <nb-card>
   <nb-accordion>
     <nb-accordion-item #item>
@@ -31,7 +50,9 @@
         </div>
 
         <div *ngIf="queryId">
-          <h5>Googleドライブ からダウンロード</h5>
+          <h5 style="margin-top: 50px;">
+            Googleドライブ からダウンロード
+          </h5>
           <a [href]="downloadLink">
             <button nbButton outline>
               Googleドライブからプロジェクトをダウンロード

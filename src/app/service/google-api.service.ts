@@ -104,7 +104,6 @@ export class GoogleApiService {
 
   // ユーザー情報の取得
   private async getUserInfo(): Promise<void> {
-    console.log('getUser');
     const params = {
       fields: 'user',
     };
@@ -250,6 +249,7 @@ export class GoogleApiService {
         name: file.name,
         extension: file.extension,
         content: file.content,
+        ownedByMe: true,
         permissions: undefined,
       };
       this.currentProject = newFile;
@@ -273,7 +273,6 @@ export class GoogleApiService {
     const url = 'https://www.googleapis.com/drive/v3/files';
     await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then((data) => {
       const files = data['files'];
-      console.log(files);
       if ( files && files.length > 0){
         files.forEach(f => {
           newProjectList.push({
@@ -281,6 +280,7 @@ export class GoogleApiService {
             name: f.name,
             extension: '.voisproj',
             content: '',
+            ownedByMe: true,
             permissions: undefined,
             modifiedTime: f.modifiedTime.slice(0, 10),
             shared: f.shared ? '公開' : '非公開',
@@ -295,14 +295,15 @@ export class GoogleApiService {
   // プロジェクトを取得
   async getProject(id: string): Promise<GoogleFileInfo>{
     if (!this.userExists){return; }
-    const newProject: GoogleFileInfo = {id: id, name: '', extension: '', content: '', permissions: undefined};
+    const newProject: GoogleFileInfo = {id: id, name: '', extension: '', content: '', ownedByMe: undefined, permissions: undefined};
     const params = {
-      fields: 'kind, name, mimeType, description',
+      fields: 'kind, name, mimeType, description, ownedByMe',
     };
     const url = 'https://www.googleapis.com/drive/v3/files/' + id;
     await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then(async(data) => {
       if (data['mimeType'] != 'application/json'){return; }
       newProject.name = data['name'];
+      newProject.ownedByMe = data['ownedByMe'];
       newProject.extension = '.voisproj'; // 要確認
       const responseType = 'json';  // 普通はjson
       const params = {
@@ -323,7 +324,7 @@ export class GoogleApiService {
   // 現在のプロジェクトの権限リストを取得
   async getPermission(): Promise<void>{
     if (!this.userExists){return; }
-    if (!this.currentProject || this.currentProject.id == ''){return; }
+    if (this.currentProject == null || this.currentProject.id == '' || this.currentProject.ownedByMe != true){return; }
     const params = {
       fields: 'permissions',
     };
@@ -336,12 +337,12 @@ export class GoogleApiService {
           id: permission.id,  // anyoneWithLink
           type: permission.type,  // anyone
           role: permission.role,  // reader
-          targetId: this.currentProject.id,
+          //targetId: this.currentProject.id,
         });
       });
       this.currentProject.permissions = permissions;
     })
-    .catch(error => alert('公開情報の取得に失敗しました'));
+    .catch(error => alert('公開情報の取得に失敗しました' + error));
   }
 
   // プロジェクトの公開
