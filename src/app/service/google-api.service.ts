@@ -46,6 +46,8 @@ export class GoogleApiService {
   }
 
   isMyDriveProject(): boolean{
+    return this.currentProject.ownedByMe;
+    /*
     let isMine = false;
     if (this.currentProject && this.currentProject.permissions && this.user && this.user.me){
       this.currentProject.permissions.forEach( p => {
@@ -55,6 +57,7 @@ export class GoogleApiService {
       });
     }
     return isMine;
+    */
   }
 
   getProjectName(): string{
