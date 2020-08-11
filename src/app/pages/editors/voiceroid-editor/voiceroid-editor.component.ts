@@ -1094,7 +1094,7 @@ class VoiceroidEditorPlugin {
     return wrapper;
   }
 
-  private toggleTune(tune, isNew: boolean) {
+  private toggleTune(tune: Character, isNew: boolean) {
     this.id = tune.id;
     let src = '';
     if (tune.isNull){
@@ -1117,6 +1117,12 @@ class VoiceroidEditorPlugin {
         this.textInput.selectionStart = this.textInput.value.length;
         this.textInput.selectionEnd = this.textInput.value.length;
       }, 50);
+    }
+    if(tune.show){
+      this.div.style.display = 'flex';
+    }
+    else{
+      this.div.style.display = 'none';
     }
     this.api.toolbar.close();
     this.api.tooltip.hide();
