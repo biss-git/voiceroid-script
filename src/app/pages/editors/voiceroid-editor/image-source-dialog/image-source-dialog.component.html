@@ -1,8 +1,19 @@
 <nb-card style="max-height: 75vh; width: 80vw">
   <nb-card-header>
-    <h4>{{chara.name}}</h4>
+    <h4>
+      <img [src]="chara.src" width="32" height="32"/>
+      {{chara.name}}
+    </h4>
   </nb-card-header>
   <nb-card-body>
+    <h5>
+      キャラクター名
+    </h5>
+    <input nbInput placeholder="URL" [formControl]="name" style="width: 100%;">
+
+    <h5 style="margin-top: 40px;">
+      キャラクター画像
+    </h5>
     <div>
       <ng-container *ngFor="let src of sources">
         <img [src]="src" width="80" height="80"
@@ -10,17 +21,18 @@
               (click)="select(src)"/>
       </ng-container>
     </div>
-    <div style="margin-top:40px">
+    <div style="margin-top:20px">
       <h6>画像url</h6>
       <input nbInput placeholder="URL" [formControl]="url" style="width: 100%;">
     </div>
-    <div style="margin-top:40px">
+    <div style="margin-top:20px">
       <h6>プレビュー</h6>
       <img [src]="url.value" width="100" height="100"/>
+      <span style="font-size: large;">{{name.value}}</span>
     </div>
   </nb-card-body>
   <nb-card-footer>
-    <button nbButton status="success" (click)="submit(url.value)">
+    <button nbButton status="success" (click)="submit()">
       Submit
       <nb-icon icon="checkmark-outline"></nb-icon>
     </button>

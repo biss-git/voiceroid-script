@@ -13,13 +13,18 @@ export class ImageSourceDialogComponent {
 
   chara: Character;
   url: FormControl;
+  name: FormControl;
   sources: string[];
 
   constructor(
     protected ref: NbDialogRef<ImageSourceDialogComponent>,
-    private charaService: CharactorsService) {
-      this.chara = this.charaService.selectedChara;
+    public charaService: CharactorsService) {
+      this.chara = {
+        name: this.charaService.selectedChara.name,
+        src: this.charaService.selectedChara.src,
+      } as Character;
       this.url = new FormControl(this.chara.src, [Validators.required]);
+      this.name = new FormControl(this.chara.name, [Validators.required]);
       this.sources = this.charaService.sources;
   }
 
@@ -27,8 +32,10 @@ export class ImageSourceDialogComponent {
     this.ref.close();
   }
 
-  submit(name): void {
-    this.ref.close(name);
+  submit(): void {
+    this.chara.name = this.name.value;
+    this.chara.src = this.url.value;
+    this.ref.close(this.chara);
   }
 
   select(src: string): void {

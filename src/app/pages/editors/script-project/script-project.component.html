@@ -98,10 +98,13 @@
     <ng2-smart-table [settings]="scriptSettings" [source]="scriptSource" (deleteConfirm)="onDeleteConfirm($event,'script')"></ng2-smart-table>
     <div class="file-block">
       <span class="file-type">キャラクター情報(.vcha)</span>
-      <span class="file-name">{{projectService.project.characters?.name}}</span>
       <ng-container *ngIf="projectService.project.characters">
-        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.characters, '.vcha')"></nb-icon>
-        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.characters)"></nb-icon>
+        <span class="file-name">{{projectService.project.characters?.name}}</span>
+        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.characters, '.vcha')" nbTooltip="削除"></nb-icon>
+        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.characters)" nbTooltip="ダウンロード"></nb-icon>
+      </ng-container>
+      <ng-container *ngIf="projectService.project.characters==null">
+        <span class="file-name" style="color: gray; font-size: small;">No data found</span>
       </ng-container>
     </div>
 
@@ -114,27 +117,36 @@
     </h5>
     <div class="file-block">
       <span class="file-type">フレーズ辞書(.pdic)</span>
-      <span class="file-name">{{projectService.project.phraseDictionary?.name}}</span>
       <ng-container *ngIf="projectService.project.phraseDictionary">
-        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.phraseDictionary, '.pdic')"></nb-icon>
-        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.phraseDictionary)"></nb-icon>
-        <nb-icon icon="book-open-outline" class="action-icon" [routerLink]="['/pages/charts/PhraseDictionary', {number: 0}]"></nb-icon>
+        <span class="file-name">{{projectService.project.phraseDictionary?.name}}</span>
+        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.phraseDictionary, '.pdic')" nbTooltip="削除"></nb-icon>
+        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.phraseDictionary)" nbTooltip="ダウンロード"></nb-icon>
+        <nb-icon icon="book-open-outline" class="action-icon" [routerLink]="['/pages/charts/PhraseDictionary', {number: 0}]" nbTooltip="開く"></nb-icon>
+      </ng-container>
+      <ng-container *ngIf="projectService.project.phraseDictionary==null">
+        <span class="file-name" style="color: gray; font-size: small;">No data found</span>
       </ng-container>
     </div>
     <div class="file-block">
       <span class="file-type">ボイスプリセット(.vpc)</span>
-      <span class="file-name">{{projectService.project.voicePreset?.name}}</span>
       <ng-container *ngIf="projectService.project.voicePreset">
-        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.voicePreset, '.vpc')"></nb-icon>
-        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.voicePreset)"></nb-icon>
+        <span class="file-name">{{projectService.project.voicePreset?.name}}</span>
+        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.voicePreset, '.vpc')" nbTooltip="削除"></nb-icon>
+        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.voicePreset)" nbTooltip="ダウンロード"></nb-icon>
+      </ng-container>
+      <ng-container *ngIf="projectService.project.voicePreset==null">
+        <span class="file-name" style="color: gray; font-size: small;">No data found</span>
       </ng-container>
     </div>
     <div class="file-block">
       <span class="file-type">設定ファイル(.settings)</span>
-      <span class="file-name">{{projectService.project.settings?.name}}</span>
       <ng-container *ngIf="projectService.project.settings">
-        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.settings, '.settings')"></nb-icon>
-        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.settings)"></nb-icon>
+        <span class="file-name">{{projectService.project.settings?.name}}</span>
+        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.settings, '.settings')" nbTooltip="削除"></nb-icon>
+        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.settings)" nbTooltip="ダウンロード"></nb-icon>
+      </ng-container>
+      <ng-container *ngIf="projectService.project.settings==null">
+        <span class="file-name" style="color: gray; font-size: small;">No data found</span>
       </ng-container>
     </div>
 
@@ -169,15 +181,15 @@
       </button>
       <br>
       <div style="margin-left: 20px; margin-top: 15px;" *ngIf="myDriveProject">
-        <h6>公開設定</h6>
-        <div *ngIf="!share" style="margin-left: 5px; margin-top: 5px;">
+        <!-- <h6>公開設定</h6> -->
+        <div *ngIf="!share" style="margin-left: 0px; margin-top: 5px;">
           <h6>非公開です</h6>
           <button nbButton outline (click)="releaseDriveProject()">
             プロジェクトを公開する
             <nb-icon icon="eye-outline"></nb-icon>
           </button>
         </div>
-        <div *ngIf="share" style="margin-left: 5px; margin-top: 5px;">
+        <div *ngIf="share" style="margin-left: 0px; margin-top: 5px;">
           <h6>公開されています</h6>
           <div>
             共有リンク

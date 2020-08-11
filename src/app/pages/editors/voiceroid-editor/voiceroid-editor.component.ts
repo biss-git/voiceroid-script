@@ -191,15 +191,18 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
             const element = document.getElementById(id);
             if (element){
               element.addEventListener('click', (e) => {
-                this.charaService.selectedChara = this.charaService.characters[number];
-                this.dialogService.open(ImageSourceDialogComponent)
-                .onClose.subscribe(
-                  url => {
-                    if (url){
-                      this.charaService.selectedChara.src = url;
-                      this.refreshTable();
-                    }
-                  });
+                this.editChara(this.charaService.characters[number]);
+                // this.charaService.selectedChara = this.charaService.characters[number];
+                // this.dialogService.open(ImageSourceDialogComponent)
+                // .onClose.subscribe(
+                //   (chara: Character) => {
+                //     if (chara){
+                //       this.charaService.selectedChara.src = chara.src;
+                //       this.charaService.selectedChara.name = chara.name;
+                //       this.refreshTable();
+                //       this.refresh();
+                //     }
+                //   });
               });
             }
           }, 30);
@@ -280,6 +283,22 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     },
   };
 
+  editChara(selectedChara: Character, update: boolean = false){
+    this.charaService.selectedChara = selectedChara;
+    this.dialogService.open(ImageSourceDialogComponent)
+    .onClose.subscribe(
+      (chara: Character) => {
+        if (chara){
+          this.charaService.selectedChara.src = chara.src;
+          this.charaService.selectedChara.name = chara.name;
+          this.refreshTable();
+          if(update){
+            this.refresh();
+          }
+        }
+      });
+  }
+
   refreshTable(){
     this.charaService.characters = [].concat(this.characters);
     this.characters = this.charaService.characters;
@@ -318,11 +337,19 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     this.themeSubscription.unsubscribe();
     this.matrixParamsSubscription.unsubscribe();
     if (this.editor){
-      this.editor.save().then(
-        data => {
-          this.charaService.tempData = data as any;
-        },
-      );
+      /**
+       * ページ切り替えが早すぎるとeditorが完成する前にsaveが呼ばれてエラーになる
+       * 対策としてとりあえずtryで囲んだ
+       */
+      try{
+        this.editor.save().then(
+          data => {
+            this.charaService.tempData = data as any;
+          },
+        );
+      }
+      catch{
+      }
     }
   }
 
@@ -332,6 +359,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         this.editor.destroy();
         this.config.data = null;
         this.editor = new EditorJS(this.config);
+        this.showToast('primary', '台本データを削除しました', '');;
       }
     }
   }

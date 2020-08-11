@@ -41,8 +41,9 @@
   </nb-accordion>
   <div style="margin: 10px;">
     <ng-container *ngFor="let chara of characters">
-      <img [src]="chara.src" width="50" height="50" style="margin: 5px;"
-           [nbTooltip]="chara.name" nbTooltipPlacement="top">
+      <img [src]="chara.src" width="50" height="50" style="margin: 5px; cursor: pointer;"
+           [nbTooltip]="chara.name" nbTooltipPlacement="top"
+           (click)="editChara(chara, true)">
     </ng-container>
   </div>
 </nb-card>

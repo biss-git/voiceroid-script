@@ -46,7 +46,7 @@ export class GoogleApiService {
   }
 
   isMyDriveProject(): boolean{
-    return this.currentProject.ownedByMe;
+    return (this.currentProject)? this.currentProject.ownedByMe: false;
     /*
     let isMine = false;
     if (this.currentProject && this.currentProject.permissions && this.user && this.user.me){

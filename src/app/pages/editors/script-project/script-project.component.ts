@@ -270,7 +270,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       this.refreshState();
       this.refreshTable();
       if (!exec){
-        this.showToast('success', 'プロジェクトが削除されました' , '');
+        this.showToast('success', 'プロジェクトが破棄されました' , '');
       }
       return true;
     }
@@ -304,6 +304,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
             this.projectService.project.settings = null;
             break;
         }
+        this.showToast('danger', file.name + ' が削除されました' , '');
       }
     }
   }
@@ -614,7 +615,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         type: 'string',
         filter: true,
         sort: true,
-        width: '120px',
+        width: '140px',
       },
       shared: {
         title: '公開',
