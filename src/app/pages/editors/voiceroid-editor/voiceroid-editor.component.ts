@@ -429,12 +429,29 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         this.charaService.characters = JSON.parse(files[0].content);
         this.characters = this.charaService.characters;
         this.refresh();
+        /*
         if (!this.isBusy){
           setTimeout(() => {
             const target = document.getElementById('characterList');
             target.scrollIntoView();
           }, 1000);
         }
+        */
+        this.showToast('primary', files[0].name, '');
+        return;
+      }
+      else if (files[0].extension == '.vpc'){
+        this.charaService.characters = this.loadVPC(files[0].content);
+        this.characters = this.charaService.characters;
+        this.refresh();
+        /*
+        if (!this.isBusy){
+          setTimeout(() => {
+            const target = document.getElementById('characterList');
+            target.scrollIntoView();
+          }, 1000);
+        }
+        */
         this.showToast('primary', files[0].name, '');
         return;
       }
@@ -462,6 +479,88 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
       this.editor.destroy();
     }
     this.editor = new EditorJS(this.config);
+  }
+
+
+  /**
+   * ボイスプリセットからキャラクター情報を構成する
+   * @param text
+   */
+  loadVPC(text: string): Character[]{
+    const characters: Character[] = [
+      {
+        id: 0,
+        name: '',
+        src: this.charaService.sources[0],
+        isNull: true,
+        show: true,
+      }
+    ];
+    const lines = text.split('\n');
+    let newChara: Character = null;
+    lines.forEach(line => {
+      if(line.includes('<VoicePreset>')){
+        newChara = {
+          id: characters.length,
+          name: '',
+          src: this.charaService.sources[0],
+          isNull: false,
+          show: true,
+        }
+      }
+      else if(newChara){
+        if(line.includes('<PresetName>')){
+          const regex: string = 'me>.+</P';
+          const match = line.match(regex);
+          if(match.length>0){
+            newChara.name = match[0].slice(3,-3);
+          }
+        }
+        else if(line.includes('<VoiceName>')){
+          if(line.includes('aoi')){
+            newChara.src = this.charaService.sources[1];
+          }
+          else if(line.includes('akane')){
+            newChara.src = this.charaService.sources[2];
+          }
+          else if(line.includes('yukari')){
+            newChara.src = this.charaService.sources[3];
+          }
+          else if(line.includes('akari')){
+            newChara.src = this.charaService.sources[4];
+          }
+          else if(line.includes('tami')){
+            newChara.src = this.charaService.sources[5];
+          }
+          else if(line.includes('tsuina')){
+            newChara.src = this.charaService.sources[6];
+          }
+          else if(line.includes('seika')){
+            newChara.src = this.charaService.sources[7];
+          }
+          else if(line.includes('kiri')){
+            newChara.src = this.charaService.sources[8];
+          }
+          else if(line.includes('zunko')){
+            newChara.src = this.charaService.sources[9];
+          }
+          else if(line.includes('tuku')){
+            newChara.src = this.charaService.sources[10];
+          }
+          else if(line.includes('itako')){
+            newChara.src = this.charaService.sources[11];
+          }
+          else if(line.includes('haru')){
+            newChara.src = this.charaService.sources[12];
+          }
+        }
+        else if(line.includes('</VoicePreset>')){
+          characters.push(newChara)
+          newChara = null;
+        }
+      }
+    });
+    return characters;
   }
 
   // タブ付き文字をeditor に対応した形式に直す
