@@ -61,8 +61,8 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         }
         else{
           this.characters = this.charaService.characters;
-          VoiceroidEditorPlugin.characters = this.characters;
         }
+        VoiceroidEditorPlugin.characters = this.characters;
         const number = parseInt( params.get('number'), 10);
         const scripts = this.projectService.project.scripts;
         setTimeout(() => {

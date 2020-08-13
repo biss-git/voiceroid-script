@@ -269,7 +269,7 @@ export class GoogleApiService {
     }
     const newProjectList: GoogleFileInfo[] = [];
     const params = {
-      q: 'name contains \'.voisproj\' and mimeType = \'application/json\' and trashed = false and \'' + this.projectsId + '\' in parents',
+      q: 'name contains \'.voisproj\' and ( mimeType = \'application/json\' or mimeType = \'application/octet-stream\' ) and trashed = false and \'' + this.projectsId + '\' in parents',
       pageSize: '1000',
       fields: 'files(name, id, modifiedTime, shared)',
     };
@@ -304,7 +304,7 @@ export class GoogleApiService {
     };
     const url = 'https://www.googleapis.com/drive/v3/files/' + id;
     await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then(async(data) => {
-      if (data['mimeType'] != 'application/json'){return; }
+      if (data['mimeType'] != 'application/json' && data['mimeType'] != 'application/octet-stream'){return; }
       newProject.name = data['name'];
       newProject.ownedByMe = data['ownedByMe'];
       newProject.extension = '.voisproj'; // 要確認
