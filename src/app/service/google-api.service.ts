@@ -115,7 +115,7 @@ export class GoogleApiService {
       this.user = data['user'];
       this.userService.changeUser(this.user);
     })
-    .catch(error => console.log('ユーザー情報の取得に失敗しました'));
+    .catch(error => console.log('ユーザー情報の取得に失敗しました', error));
   }
 
   // httpヘッダ
@@ -158,7 +158,7 @@ export class GoogleApiService {
       if (this.rootId == ''){
       }
     })
-    .catch(error => console.log('Voiceroid Script フォルダの検索に失敗しました'));
+    .catch(error => console.log('Voiceroid Script フォルダの検索に失敗しました', error));
   }
 
   // Voiceroid Script フォルダの作成
@@ -173,7 +173,7 @@ export class GoogleApiService {
     this.http.post(url , body, {'headers': this.getHeader()}).toPromise().then((data) => {
       this.rootId = data['id'];
     })
-    .catch(error => console.log('Voiceroid Script フォルダの作成に失敗しました'));
+    .catch(error => console.log('Voiceroid Script フォルダの作成に失敗しました', error));
   }
 
   // Projectsフォルダの検索 / 作成
@@ -196,7 +196,7 @@ export class GoogleApiService {
         await this.makeProjectsFolder();
       }
     })
-    .catch(error => console.log('Projects フォルダの検索に失敗しました'));
+    .catch(error => console.log('Projects フォルダの検索に失敗しました', error));
   }
 
   // Projectsフォルダの作成
@@ -215,7 +215,7 @@ export class GoogleApiService {
     await this.http.post(url , body, {'headers': this.getHeader()}).toPromise().then((data) => {
       this.projectsId = data['id'];
     })
-    .catch(error => console.log('Projects フォルダの作成に失敗しました'));
+    .catch(error => console.log('Projects フォルダの作成に失敗しました', error));
   }
 
   // プロジェクトの作成
@@ -234,7 +234,10 @@ export class GoogleApiService {
     await this.http.post(url , body, {'headers': this.getHeader()}).toPromise().then(async (data) => {
       await this.updateCurrentProject(file, data['id']);
     })
-    .catch(error => alert('プロジェクトの作成に失敗しました'));
+    .catch(error => {
+      alert('プロジェクトの作成に失敗しました。再ログインを試してください。');
+      console.log('プロジェクトの作成に失敗しました。再ログインを試してください。', error)
+    });
   }
 
   // 現在のプロジェクトを更新
@@ -257,7 +260,10 @@ export class GoogleApiService {
       };
       this.currentProject = newFile;
     })
-    .catch(error => alert('プロジェクトの更新に失敗しました'));
+    .catch(error => {
+      alert('プロジェクトの更新に失敗しました。再ログインを試してください。')
+      console.log('プロジェクトの更新に失敗しました。再ログインを試してください。', error);
+    });
     await this.getPermission();
   }
 
@@ -291,7 +297,10 @@ export class GoogleApiService {
         });
       }
     })
-    .catch(error => alert('プロジェクト一覧の取得に失敗しました'));
+    .catch(error => {
+      alert('プロジェクト一覧の取得に失敗しました。再ログインを試してください。');
+      console.log('プロジェクト一覧の取得に失敗しました。再ログインを試してください。', error);
+    });
     return newProjectList;
   }
 
@@ -316,9 +325,15 @@ export class GoogleApiService {
       await this.http.get(url , {'headers': this.getHeader(), responseType, params}).toPromise().then((data) => {
         newProject.content = data;
       })
-      .catch(error => alert('プロジェクトデータの取得に失敗しました'));
+      .catch(error => {
+        alert('プロジェクトデータの取得に失敗しました。再ログインを試してください。');
+        console.log('プロジェクトデータの取得に失敗しました。再ログインを試してください。', error);
+      });
     })
-    .catch(error => alert('プロジェクト情報の取得に失敗しました'));
+    .catch(error => {
+      alert('プロジェクト情報の取得に失敗しました。再ログインを試してください。');
+      console.log('プロジェクト情報の取得に失敗しました。再ログインを試してください。', error);
+    });
     this.currentProject = newProject;
     await this.getPermission();
     return newProject;
@@ -345,7 +360,10 @@ export class GoogleApiService {
       });
       this.currentProject.permissions = permissions;
     })
-    .catch(error => alert('公開情報の取得に失敗しました' + error));
+    .catch(error => {
+      alert('公開情報の取得に失敗しました。再ログインを試してください。');
+      console.log('公開情報の取得に失敗しました。再ログインを試してください。', error);
+    });
   }
 
   // プロジェクトの公開
@@ -365,7 +383,10 @@ export class GoogleApiService {
     const url = 'https://www.googleapis.com/drive/v3/files/' + this.currentProject.id + '/permissions';
     await this.http.post(url, body, {'headers': this.getHeader()}).toPromise().then((data) => {
     })
-    .catch(error => alert('プロジェクトの公開に失敗しました'));
+    .catch(error => {
+      alert('プロジェクトの公開に失敗しました。再ログインを試してください。');
+      console.log('プロジェクトの公開に失敗しました。再ログインを試してください。', error);
+    });
     await this.getPermission();
   }
 
@@ -382,7 +403,10 @@ export class GoogleApiService {
         const url = 'https://www.googleapis.com/drive/v3/files/' + this.currentProject.id + '/permissions/' + p.id;
         await this.http.delete(url, {'headers': this.getHeader()}).toPromise().then((data) => {
         })
-        .catch(error => alert('プロジェクトの非公開に失敗しました'));
+        .catch(error => {
+          alert('プロジェクトの非公開に失敗しました。再ログインを試してください。');
+          console.log('プロジェクトの非公開に失敗しました。再ログインを試してください。', error);
+        });
       }
     }
     await this.getPermission();
@@ -410,7 +434,7 @@ export class GoogleApiService {
         await this.makeLinkFilesFolder();
       }
     })
-    .catch(error => console.log('Link Files フォルダの検索に失敗しました'));
+    .catch(error => console.log('Link Files フォルダの検索に失敗しました', error));
   }
 
   // Link Filesフォルダの作成
@@ -429,7 +453,7 @@ export class GoogleApiService {
     await this.http.post(url , body, {'headers': this.getHeader()}).toPromise().then((data) => {
       this.linkFilesId = data['id'];
     })
-    .catch(error => console.log('Link Files フォルダの作成に失敗しました'));
+    .catch(error => console.log('Link Files フォルダの作成に失敗しました', error));
   }
 
 
@@ -451,7 +475,10 @@ export class GoogleApiService {
       await this.makeLinkFilesPermission(data['id']);
       file.content = 'https://drive.google.com/uc?id=' + data['id'];
     })
-    .catch(error => alert('ファイルのアップロードに失敗しました'));
+    .catch(error => {
+      alert('ファイルのアップロードに失敗しました。再ログインを試してください。');
+      console.log('ファイルのアップロードに失敗しました。再ログインを試してください。', error);
+    });
   }
 
   // 現在のファイルを更新
@@ -463,7 +490,10 @@ export class GoogleApiService {
     const url = 'https://www.googleapis.com/upload/drive/v3/files/' + id;
     await this.http.patch(url , file.content, {'headers': this.getHeader(), params}).toPromise().then((data) => {
     })
-    .catch(error => alert('ファイルの更新に失敗しました'));
+    .catch(error => {
+      alert('ファイルの更新に失敗しました。再ログインを試してください。');
+      console.log('ファイルの更新に失敗しました。再ログインを試してください。', error);
+    });
   }
 
   // ファイルの公開
@@ -476,7 +506,10 @@ export class GoogleApiService {
     const url = 'https://www.googleapis.com/drive/v3/files/' + id + '/permissions';
     await this.http.post(url, body, {'headers': this.getHeader()}).toPromise().then((data) => {
     })
-    .catch(error => alert('ファイルの公開に失敗しました'));
+    .catch(error => {
+      alert('ファイルの公開に失敗しました。再ログインを試してください。');
+      console.log('ファイルの公開に失敗しました。再ログインを試してください。', error);
+    });
   }
 
 
