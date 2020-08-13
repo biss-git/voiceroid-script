@@ -121,7 +121,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
     },
     actions: {
       //add: false,
-      //edit: false,
+      edit: false,
       //delete: false,
       position: 'right',
       //select: true,
