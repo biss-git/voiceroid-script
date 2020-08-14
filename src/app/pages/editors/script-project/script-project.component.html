@@ -150,13 +150,13 @@
       </ng-container>
     </div>
 
-    <ng-container *ngIf="userExists">
+    <ng-container *ngIf="userExists || this.projectService.project.fileLinks.length > 0">
       <h5 style="margin-top: 50px;">
         <nb-icon icon="attach-outline"></nb-icon>
         添付ファイル
       </h5>
-      <ngx-drop-area *ngIf="!driveProject || myDriveProject"
-        (fileLoad)="onLinkFileLoad($event)" text="色々なファイル" type="bin"></ngx-drop-area>
+        <ngx-drop-area *ngIf="userExists && (!driveProject || myDriveProject)"
+          (fileLoad)="onLinkFileLoad($event)" text="色々なファイル" type="bin"></ngx-drop-area>
       <ng2-smart-table [settings]="linkSettings" [source]="linkSource" (deleteConfirm)="onDeleteConfirm($event,'link')"></ng2-smart-table>
     </ng-container>
   </nb-card-body>
