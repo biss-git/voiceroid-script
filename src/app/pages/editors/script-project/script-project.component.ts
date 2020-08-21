@@ -470,7 +470,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         width: '100%',
       },
       open: {
-        title: '',
+        title: '開く',
         type: 'html',
         valuePrepareFunction: (value, value2, value3) => {
           const number = value3.dataSet.data.indexOf(value2);

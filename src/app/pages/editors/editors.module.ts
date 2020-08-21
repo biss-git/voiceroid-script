@@ -14,7 +14,6 @@ import { SandboxComponent } from './sandbox/sandbox.component';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { ScriptProjectComponent } from './script-project/script-project.component';
 import { ImageSourceDialogComponent } from './voiceroid-editor/image-source-dialog/image-source-dialog.component';
-import { HomeComponent } from './home/home.component';
 
 @NgModule({
   imports: [
@@ -39,7 +38,6 @@ import { HomeComponent } from './home/home.component';
     SandboxComponent,
     ScriptProjectComponent,
     ImageSourceDialogComponent,
-    HomeComponent,
   ],
   entryComponents: [
     ImageSourceDialogComponent,
