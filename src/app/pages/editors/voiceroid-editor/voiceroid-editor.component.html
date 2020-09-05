@@ -99,6 +99,10 @@
       <input type="text" [(ngModel)]="breakChara" [style.background]="bgColor" [style.color]="textColor" style="margin:10px 0 10px 0; width: 108px"/>
       <br>
     </ng-container>
+    <div style="display: flex; align-items: center; justify-content: flex-start; margin: 10px 0 10px 0;">
+      <span style="display: inline-block; width: 90px;">改行なし</span>
+      <nb-toggle [(checked)]="noBreak"></nb-toggle>
+    </div>
     <div style="margin: 20px 0 0 0">
       <button nbButton outline (click)="generateScript()">
         生成

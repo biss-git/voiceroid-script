@@ -96,6 +96,8 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
   breakChara = '/';
   breakType = 'block';
 
+  noBreak: boolean = false;
+
   characters = [
     { id: 0, show: true, name: '', src: '', isNull: true},
   ];
@@ -550,7 +552,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
           else if(line.includes('itako')){
             newChara.src = this.charaService.sources[11];
           }
-          else if(line.includes('haru')){
+          else if(line.includes('sora')){
             newChara.src = this.charaService.sources[12];
           }
         }
@@ -728,7 +730,7 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
 
 
   // ボイスロイド２用のスクリプト生成
-  generateScript(){
+  generateScript(): void{
     this.editor.save().then(
       data => {
         let script = '';
@@ -784,6 +786,11 @@ export class VoiceroidEditiorComponent implements OnInit, AfterViewInit, OnDestr
         if (script.slice(-2) == '/\n'){
           script = script.slice(0, -2);
         }
+
+        if(this.noBreak){
+          script = script.replace(/\n/g, '');
+        }
+
         this.script = script;
       },
     );
