@@ -9,6 +9,7 @@ import { Subject, Subscription } from 'rxjs';
 import { NbDialogService, NbToastrService, NbComponentStatus, NbGlobalPhysicalPosition, NbDialogRef, NbAccordionItemComponent } from '@nebular/theme';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScriptProjectService } from '../../../service/script-project.service';
+import { ScriptProject } from '../../../model/script-project.model';
 
 @Component({
   selector: 'ngx-script-project',
@@ -18,7 +19,6 @@ import { ScriptProjectService } from '../../../service/script-project.service';
 export class ScriptProjectComponent implements OnInit, OnDestroy {
 
   private destroy$: Subject<void> = new Subject<void>();
-
 
   isBusy: boolean = false;
 
@@ -70,14 +70,16 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.scriptSource = this.projectService.project.scripts;
-    this.linkSource = this.projectService.project.fileLinks;
+    //this.scriptSource = this.projectService.project.scripts;
+    //this.linkSource = this.projectService.project.fileLinks;
 
     this.userService.userChange.pipe(takeUntil(this.destroy$)).subscribe( async (user: any) => {
       this.refreshState();
-      if (this.queryId && this.userExists){
+      if (this.queryId){
         await this.openDriveProject(this.queryId);
-        this.accordion.close();
+        if (this.googleAPI.projectExist()){
+          this.accordion.close();
+        }
       }
     });
     this.refreshState();
@@ -141,7 +143,8 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
   async onScriptLoad(files: FileInfo[]){
     files.forEach(file => {
       if (file.extension == '.vois'){
-        this.scriptSource.push(file);
+        //this.scriptSource.push(file);
+        this.projectService.project.scripts.push(file);
         this.showToast('success', file.name , '');
       }
       else if (file.extension == '.vcha'){
@@ -175,7 +178,8 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       }
       if (window.confirm('「' + files[0].name + '」をGoogle Drive にアップロードして公開しますか？')) {
         await this.googleAPI.makeNewLinkFile(files[0]);
-        this.linkSource.push(files[0]);
+        //this.linkSource.push(files[0]);
+        this.projectService.project.fileLinks.push(files[0]);
         this.showToast('success', 'アップロードされました' , '');
       } else {
         return;
@@ -219,7 +223,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    */
   loadProject(file: FileInfo): void{
     if (file && file.extension == '.voisproj'){
-      let project: any;
+      let project: ScriptProject;
       if (typeof(file.content) == 'string'){
         project = JSON.parse(file.content);
       }
@@ -227,7 +231,8 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         project = file.content;
       }
       if (project.scripts){
-        this.scriptSource = project.scripts;
+        this.projectService.project.scripts = project.scripts;
+        //this.scriptSource = project.scripts;
       }
       if (project.characters){
         this.projectService.project.characters = project.characters;
@@ -242,29 +247,33 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
         this.projectService.project.settings = project.settings;
       }
       if (project.fileLinks){
-        this.linkSource = project.fileLinks;
+        this.projectService.project.fileLinks = project.fileLinks;
+        //this.linkSource = project.fileLinks;
       }
+      this.projectService.project.readme = project.readme;
       this.showToast('success', 'プロジェクトを読み込みました。' , '');
     }
   }
 
 
   refreshTable(){
-    this.scriptSource = this.scriptSource.concat();
+    //this.scriptSource = this.scriptSource.concat();
     //this.characterSource = [].concat(this.characterSource);
     //this.phraseSource = [].concat(this.phraseSource);
     //this.presetSource = [].concat(this.presetSource);
     //this.settingSource = [].concat(this.settingSource);
-    this.linkSource = this.linkSource.concat();
-    this.projectService.project.scripts = this.scriptSource;
-    this.projectService.project.fileLinks = this.linkSource;
+    //this.linkSource = this.linkSource.concat();
+    //this.projectService.project.scripts = this.scriptSource;
+    //this.projectService.project.fileLinks = this.linkSource;
+    this.projectService.project.scripts = this.projectService.project.scripts.concat();
+    this.projectService.project.fileLinks = this.projectService.project.fileLinks.concat();
   }
 
 
   clearProject(exec: boolean = false): boolean{
     if (exec || window.confirm('調整データを全て削除します。よろしいですか？')) {
-      this.scriptSource = [];
-      this.linkSource = [];
+      //this.scriptSource = [];
+      //this.linkSource = [];
       this.projectService.clearProject();
       this.googleAPI.clearCurrentProject();
       this.refreshState();
@@ -332,10 +341,12 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       switch (type){
         case 'script':
-          this.scriptSource = event.source.data;
+          //this.scriptSource = event.source.data;
+          this.projectService.project.scripts = event.source.data;
           break;
         case 'link':
-          this.linkSource = event.source.data;
+          //this.linkSource = event.source.data;
+          this.projectService.project.fileLinks = event.source.data;
           break;
       }
       this.showToast('danger', event.data.name + ' が削除されました' , '');
@@ -428,6 +439,9 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
   }
 
 
+  makeReadme(): void{
+    this.projectService.project.readme = "\n#### これはサンプルです。削除してご利用ください。\n\nmarkdownのREADMEを書くことができます。  \n詳細な記法はmarkdown記法で検索してください。";
+  }
 
 
   /**
@@ -437,8 +451,8 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
    */
 
 
-  scriptSource: FileInfo[] = [];
-  linkSource: FileInfo[] = [];
+  // scriptSource: FileInfo[] = [];
+  // linkSource: FileInfo[] = [];
 
   driveProjectList: GoogleFileInfo[] = [];
 

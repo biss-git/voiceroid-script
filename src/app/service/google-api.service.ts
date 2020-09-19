@@ -46,8 +46,7 @@ export class GoogleApiService {
   }
 
   isMyDriveProject(): boolean{
-    return (this.currentProject)? this.currentProject.ownedByMe: false;
-    /*
+    //return (this.currentProject)? this.currentProject.ownedByMe: false;
     let isMine = false;
     if (this.currentProject && this.currentProject.permissions && this.user && this.user.me){
       this.currentProject.permissions.forEach( p => {
@@ -57,7 +56,6 @@ export class GoogleApiService {
       });
     }
     return isMine;
-    */
   }
 
   getProjectName(): string{
@@ -305,14 +303,20 @@ export class GoogleApiService {
   }
 
   // プロジェクトを取得
-  async getProject(id: string): Promise<GoogleFileInfo>{
-    if (!this.userExists){return; }
-    const newProject: GoogleFileInfo = {id: id, name: '', extension: '', content: '', ownedByMe: undefined, permissions: undefined};
+  async getProject(id: string, byAPIkey: boolean = false): Promise<GoogleFileInfo>{
+    // if (!this.userExists){return; }
+    if (!this.userExists){ byAPIkey = true; }
+    let newProject: GoogleFileInfo = {id: id, name: '', extension: '', content: '', ownedByMe: undefined, permissions: undefined};
     const params = {
       fields: 'kind, name, mimeType, description, ownedByMe',
+      key: byAPIkey ? environment.googleAPIkey : undefined,
     };
     const url = 'https://www.googleapis.com/drive/v3/files/' + id;
-    await this.http.get(url , {'headers': this.getHeader(), params}).toPromise().then(async(data) => {
+    const options = {
+      'headers': byAPIkey ? undefined : this.getHeader(),
+      params: params
+    };
+    await this.http.get(url , options).toPromise().then(async(data) => {
       if (data['mimeType'] != 'application/json' && data['mimeType'] != 'application/octet-stream'){return; }
       newProject.name = data['name'];
       newProject.ownedByMe = data['ownedByMe'];
@@ -320,19 +324,30 @@ export class GoogleApiService {
       const responseType = 'json';  // 普通はjson
       const params = {
         alt: 'media',
+        key: byAPIkey ? environment.googleAPIkey : undefined,
       };
       const url = 'https://www.googleapis.com/drive/v3/files/' + id;
-      await this.http.get(url , {'headers': this.getHeader(), responseType, params}).toPromise().then((data) => {
+      const options = {
+        'headers': byAPIkey ? undefined : this.getHeader(),
+        params: params
+      };
+      await this.http.get(url , options).toPromise().then((data) => {
         newProject.content = data;
       })
       .catch(error => {
-        alert('プロジェクトデータの取得に失敗しました。再ログインを試してください。');
-        console.log('プロジェクトデータの取得に失敗しました。再ログインを試してください。', error);
+        alert('プロジェクトデータの取得に失敗しました。手動ダウンロード、または、再ログインを試してください。');
+        console.log('プロジェクトデータの取得に失敗しました。手動ダウンロード、または、再ログインを試してください。', error);
       });
     })
-    .catch(error => {
-      alert('プロジェクト情報の取得に失敗しました。再ログインを試してください。');
-      console.log('プロジェクト情報の取得に失敗しました。再ログインを試してください。', error);
+    .catch(async (error) => {
+      if (byAPIkey){
+        alert('プロジェクト情報の取得に失敗しました。手動ダウンロード、または、再ログインを試してください。');
+        console.log('プロジェクト情報の取得に失敗しました。手動ダウンロード、または、再ログインを試してください。', error);
+      }
+      else{
+        // 自分のファイルでない場合は失敗するのでAPIキーを使った取得に切り替える
+        newProject = await this.getProject(id, true);
+      }
     });
     this.currentProject = newProject;
     await this.getPermission();

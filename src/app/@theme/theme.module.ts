@@ -42,6 +42,7 @@ import { DARK_THEME } from './styles/theme.dark';
 import { DropAreaComponent } from './components/drop-area/drop-area.component';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MdToHtmlPipe } from './pipes/md-to-html.pipe';
 
 const NB_MODULES = [
   NbLayoutModule,
@@ -77,12 +78,13 @@ const PIPES = [
   RoundPipe,
   TimingPipe,
   NumberWithCommasPipe,
+  MdToHtmlPipe,
 ];
 
 @NgModule({
   imports: [CommonModule, ...NB_MODULES],
   exports: [CommonModule, ...PIPES, ...COMPONENTS],
-  declarations: [...COMPONENTS, ...PIPES],
+  declarations: [...COMPONENTS, ...PIPES, MdToHtmlPipe],
 })
 export class ThemeModule {
   static forRoot(): ModuleWithProviders {

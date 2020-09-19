@@ -7,4 +7,5 @@ export class ScriptProject {
   voicePreset: FileInfo;
   settings: FileInfo;
   fileLinks: FileInfo[];
+  readme?: string;
 }

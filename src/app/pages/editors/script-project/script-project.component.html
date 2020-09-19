@@ -85,6 +85,27 @@
 
   <nb-card-body>
 
+
+    <!-- README -->
+    <div>
+      <ng-container *ngIf="(projectService.project.readme==null || projectService.project.readme=='') && (!driveProject || myDriveProject)">
+        <button nbButton outline (click)='makeReadme(); openDriveProjects(readmeDialog)' style="margin-bottom: 20px;">
+          READMEの追加
+          <nb-icon icon="plus-circle-outline"></nb-icon>
+        </button>
+      </ng-container>
+      <ng-container *ngIf="projectService.project.readme">
+        <button nbButton outline (click)='openDriveProjects(readmeDialog)' *ngIf="!driveProject || myDriveProject" style="float: right;">
+          READMEの編集
+          <nb-icon icon="edit-2-outline"></nb-icon>
+        </button>
+
+        <div style="max-height: 30vh; overflow: scroll; margin: 20px;">
+          <div [innerHTML]="projectService.project.readme | mdToHtml" style="padding: 10px"></div>
+        </div>
+      </ng-container>
+    </div>
+
     <h5>
       ファイル読み込み
     </h5>
@@ -95,7 +116,7 @@
       <nb-icon icon="text-outline"></nb-icon>
       台本ファイル
     </h5>
-    <ng2-smart-table [settings]="scriptSettings" [source]="scriptSource" (deleteConfirm)="onDeleteConfirm($event,'script')"></ng2-smart-table>
+    <ng2-smart-table [settings]="scriptSettings" [source]="projectService.project.scripts" (deleteConfirm)="onDeleteConfirm($event,'script')"></ng2-smart-table>
     <div class="file-block">
       <span class="file-type">キャラクター情報(.vcha)</span>
       <ng-container *ngIf="projectService.project.characters">
@@ -157,7 +178,7 @@
       </h5>
         <ngx-drop-area *ngIf="userExists && (!driveProject || myDriveProject)"
           (fileLoad)="onLinkFileLoad($event)" text="色々なファイル" type="bin"></ngx-drop-area>
-      <ng2-smart-table [settings]="linkSettings" [source]="linkSource" (deleteConfirm)="onDeleteConfirm($event,'link')"></ng2-smart-table>
+      <ng2-smart-table [settings]="linkSettings" [source]="projectService.project.fileLinks" (deleteConfirm)="onDeleteConfirm($event,'link')"></ng2-smart-table>
     </ng-container>
   </nb-card-body>
 </nb-card>
@@ -232,6 +253,34 @@
       <ng-container *ngIf="driveProjectList.length==0">
         Googleドライブにプロジェクトファイルが見つかりません。
       </ng-container>
+    </nb-card-body>
+    <nb-card-footer>
+      <button nbButton (click)="ref.close()">
+        閉じる
+        <nb-icon icon="close-outline"></nb-icon>
+      </button>
+    </nb-card-footer>
+  </nb-card>
+</ng-template>
+
+
+<!--README編集ダイアログ-->
+<ng-template #readmeDialog let-data let-ref="dialogRef">
+  <nb-card style="max-height: 75vh; width: 75vw;">
+    <nb-card-header>
+      <h4>READMEの編集</h4>
+    </nb-card-header>
+    <nb-card-body>
+
+      <div>
+        <div style="width: 47%; float: left;">
+          <textarea [(ngModel)]="projectService.project.readme" style="width: 100%; height: 50vh;"></textarea>
+        </div>
+        <div style="width: 47%; float: right; height: 50vh; overflow: scroll;">
+          <div [innerHTML]="projectService.project.readme | mdToHtml" style="padding: 10px;"></div>
+        </div>
+      </div>
+
     </nb-card-body>
     <nb-card-footer>
       <button nbButton (click)="ref.close()">

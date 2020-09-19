@@ -92,6 +92,7 @@ export class DropAreaComponent implements OnInit, OnDestroy {
       case '.vpc':
       case '.settings':
       case '.voisproj':
+      case '.ccproj':
         let isSJIS = false;
         if (extention == '.pdic'){
           isSJIS = true;

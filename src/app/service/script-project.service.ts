@@ -17,6 +17,7 @@ export class ScriptProjectService {
     voicePreset: null,
     settings: null,
     fileLinks : [],
+    readme: undefined,
   };
 
   clearProject(){
@@ -27,6 +28,7 @@ export class ScriptProjectService {
       voicePreset: null,
       settings: null,
       fileLinks : [],
+      readme: undefined,
     };
   }
 
