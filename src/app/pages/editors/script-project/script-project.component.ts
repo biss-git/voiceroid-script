@@ -10,6 +10,7 @@ import { NbDialogService, NbToastrService, NbComponentStatus, NbGlobalPhysicalPo
 import { ActivatedRoute, Router } from '@angular/router';
 import { ScriptProjectService } from '../../../service/script-project.service';
 import { ScriptProject } from '../../../model/script-project.model';
+import { analyzeFileForInjectables } from '@angular/compiler';
 
 @Component({
   selector: 'ngx-script-project',
@@ -300,6 +301,22 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
     if (file){
       if (window.confirm(file.name + 'を削除しますか？')){
         switch (name){
+          case '.vois':
+            {
+              const index = this.projectService.project.scripts.indexOf(file);
+              if (index >= 0){
+                this.projectService.project.scripts.splice(index, 1);
+              }
+            }
+            break;
+          case 'link':
+            {
+              const index = this.projectService.project.fileLinks.indexOf(file);
+              if (index >= 0){
+                this.projectService.project.fileLinks.splice(index, 1);
+              }
+            }
+            break;
           case '.vcha':
             this.projectService.project.characters = null;
             break;
@@ -314,6 +331,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
             break;
         }
         this.showToast('danger', file.name + ' が削除されました' , '');
+        this.refreshTable();
       }
     }
   }
@@ -457,6 +475,71 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
   driveProjectList: GoogleFileInfo[] = [];
 
 
+  driveProjectsSettings = {
+    pager: {
+      perPage: 5,
+    },
+    actions: {
+      add: false,
+      edit: false,
+      delete: false,
+    },
+    delete: {
+      deleteButtonContent: '<i class="nb-trash"></i>',
+      confirmDelete: true,
+    },
+    columns: {
+      name: {
+        title: 'プロジェクト名',
+        type: 'string',
+        filter: true,
+        sort: true,
+        //width: '100%',
+      },
+      download: {
+        title: '開く',
+        type: 'html',
+        valuePrepareFunction: (value, value2, value3) => {
+          const number = value3.dataSet.data.indexOf(value2);
+          const id = 'driveProjectOpen' + number;
+          setTimeout(() => {
+            const element = document.getElementById(id);
+            if (element){
+              element.addEventListener('click', (e) => {
+                this.dialogRef.close();
+                this.openDriveProject(value2.id);
+              });
+            }
+          }, 30);
+          return this.sanitizer.bypassSecurityTrustHtml(
+            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>',
+            );
+        },
+        filter: false,
+        sort: false,
+        editable: false,
+        width: '50px',
+      },
+      modifiedTime: {
+        title: '更新日',
+        type: 'string',
+        filter: true,
+        sort: true,
+        width: '140px',
+      },
+      shared: {
+        title: '公開',
+        type: 'string',
+        filter: true,
+        sort: true,
+        width: '80px',
+      },
+    },
+  };
+
+
+
+    /*
   scriptSettings = {
     pager: {
       perPage: 5,
@@ -576,70 +659,7 @@ export class ScriptProjectComponent implements OnInit, OnDestroy {
       },
     },
   };
-
-
-
-  driveProjectsSettings = {
-    pager: {
-      perPage: 5,
-    },
-    actions: {
-      add: false,
-      edit: false,
-      delete: false,
-    },
-    delete: {
-      deleteButtonContent: '<i class="nb-trash"></i>',
-      confirmDelete: true,
-    },
-    columns: {
-      name: {
-        title: 'プロジェクト名',
-        type: 'string',
-        filter: true,
-        sort: true,
-        //width: '100%',
-      },
-      download: {
-        title: '開く',
-        type: 'html',
-        valuePrepareFunction: (value, value2, value3) => {
-          const number = value3.dataSet.data.indexOf(value2);
-          const id = 'driveProjectOpen' + number;
-          setTimeout(() => {
-            const element = document.getElementById(id);
-            if (element){
-              element.addEventListener('click', (e) => {
-                this.dialogRef.close();
-                this.openDriveProject(value2.id);
-              });
-            }
-          }, 30);
-          return this.sanitizer.bypassSecurityTrustHtml(
-            '<svg id="' + id  + '" class="myIconHover" style="cursor: pointer; width:32px; height:32px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g data-name="Layer 2"><g data-name="download"><rect width="24" height="24" opacity="0"/><rect x="4" y="18" width="16" height="2" rx="1" ry="1"/><rect x="3" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 5 18)"/><rect x="17" y="17" width="4" height="2" rx="1" ry="1" transform="rotate(-90 19 18)"/><path d="M12 15a1 1 0 0 1-.58-.18l-4-2.82a1 1 0 0 1-.24-1.39 1 1 0 0 1 1.4-.24L12 12.76l3.4-2.56a1 1 0 0 1 1.2 1.6l-4 3a1 1 0 0 1-.6.2z"/><path d="M12 13a1 1 0 0 1-1-1V4a1 1 0 0 1 2 0v8a1 1 0 0 1-1 1z"/></g></g></svg>',
-            );
-        },
-        filter: false,
-        sort: false,
-        editable: false,
-        width: '50px',
-      },
-      modifiedTime: {
-        title: '更新日',
-        type: 'string',
-        filter: true,
-        sort: true,
-        width: '140px',
-      },
-      shared: {
-        title: '公開',
-        type: 'string',
-        filter: true,
-        sort: true,
-        width: '80px',
-      },
-    },
-  };
+  */
 
 
 }

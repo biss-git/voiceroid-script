@@ -1,5 +1,6 @@
 <h2>
   プロジェクト
+  <a style="font-size: large;" href="https://www.nicovideo.jp/watch/sm37395002" target="_brank">使い方</a>
 </h2>
 
 <p>
@@ -106,7 +107,7 @@
       </ng-container>
     </div>
 
-    <h5>
+    <h5 style="margin-top: 15px;">
       ファイル読み込み
     </h5>
     <ngx-drop-area *ngIf="!driveProject || myDriveProject"
@@ -116,7 +117,31 @@
       <nb-icon icon="text-outline"></nb-icon>
       台本ファイル
     </h5>
+
+    <!--
     <ng2-smart-table [settings]="scriptSettings" [source]="projectService.project.scripts" (deleteConfirm)="onDeleteConfirm($event,'script')"></ng2-smart-table>
+    -->
+
+    <ng-container *ngIf="projectService.project.scripts.length == 0">
+      <div class="file-block">
+        <span class="file-type">台本ファイル(.vois)</span>
+        <span class="file-name" style="color: gray; font-size: small;">No data found</span>
+      </div>
+    </ng-container>
+    <ng-container *ngFor="let script of projectService.project.scripts; index as i" >
+      <div class="file-block">
+        <span class="file-type" *ngIf="i == 0">台本ファイル(.vois)</span>
+        <span class="file-type" *ngIf="i > 0"></span>
+        <span class="file-name">{{script.name}}</span>
+        <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(script, '.vois')" nbTooltip="削除"></nb-icon>
+        <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(script)" nbTooltip="ダウンロード"></nb-icon>
+        <a [routerLink]="['/pages/editors/voiceroid-editor', {number: i}]">
+          <nb-icon icon="text-outline" class="action-icon" nbTooltip="開く"></nb-icon>
+          開く
+        </a>
+      </div>
+    </ng-container>
+
     <div class="file-block">
       <span class="file-type">キャラクター情報(.vcha)</span>
       <ng-container *ngIf="projectService.project.characters">
@@ -142,7 +167,10 @@
         <span class="file-name">{{projectService.project.phraseDictionary?.name}}</span>
         <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(projectService.project.phraseDictionary, '.pdic')" nbTooltip="削除"></nb-icon>
         <nb-icon icon="download-outline" class="action-icon" (click)="downloadFile(projectService.project.phraseDictionary)" nbTooltip="ダウンロード"></nb-icon>
-        <nb-icon icon="book-open-outline" class="action-icon" [routerLink]="['/pages/charts/PhraseDictionary', {number: 0}]" nbTooltip="開く"></nb-icon>
+        <a [routerLink]="['/pages/charts/PhraseDictionary', {number: 0}]">
+          <nb-icon icon="book-open-outline" class="action-icon" nbTooltip="開く"></nb-icon>
+          開く
+        </a>
       </ng-container>
       <ng-container *ngIf="projectService.project.phraseDictionary==null">
         <span class="file-name" style="color: gray; font-size: small;">No data found</span>
@@ -176,9 +204,31 @@
         <nb-icon icon="attach-outline"></nb-icon>
         添付ファイル
       </h5>
-        <ngx-drop-area *ngIf="userExists && (!driveProject || myDriveProject)"
+      <ngx-drop-area *ngIf="userExists && (!driveProject || myDriveProject)"
           (fileLoad)="onLinkFileLoad($event)" text="色々なファイル" type="bin"></ngx-drop-area>
+
+      <!--
       <ng2-smart-table [settings]="linkSettings" [source]="projectService.project.fileLinks" (deleteConfirm)="onDeleteConfirm($event,'link')"></ng2-smart-table>
+      -->
+
+      <ng-container *ngIf="projectService.project.fileLinks.length == 0">
+        <div class="file-block">
+          <span class="file-type">添付ファイル</span>
+          <span class="file-name" style="color: gray; font-size: small;">No data found</span>
+        </div>
+      </ng-container>
+      <ng-container *ngFor="let fileLink of projectService.project.fileLinks; index as i" >
+        <div class="file-block">
+          <span class="file-type" *ngIf="i == 0">添付ファイル</span>
+          <span class="file-type" *ngIf="i > 0"></span>
+          <span class="file-name">{{fileLink.name}}</span>
+          <nb-icon icon="trash-2-outline" class="action-icon" (click)="clearFile(fileLink, 'link')" nbTooltip="削除"></nb-icon>
+          <a [href]="fileLink.content">
+            <nb-icon icon="download-outline" class="action-icon" nbTooltip="ダウンロード"></nb-icon>
+          </a>
+        </div>
+      </ng-container>
+
     </ng-container>
   </nb-card-body>
 </nb-card>
